@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([plc], [0.3], [ben.burnett@gmail.com])
+AC_INIT([plc], [0.4], [ben.burnett@gmail.com])
 
 AM_CONFIG_HEADER([config.h])
 AC_CONFIG_SRCDIR([src/plc.cc])
@@ -9,10 +9,10 @@ AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([dist-bzip2])
 
-dnl enable all warnings an treat warnings as errors
+dnl enable all warnings and treat warnings as errors (pendantic -- I know)
 CXXFLAGS='-Wall -Werror'
 
-dnl option to enable debug output from our code
+dnl option to enable debug/trace output from our code
 AC_ARG_ENABLE(debug,
 [  --enable-debug	  Turn on debugging],
 [case "${enableval}" in

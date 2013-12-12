@@ -80,18 +80,6 @@ symboltbl::symboltbl () : _current ( _contents.begin () ) {
 				   token ( keywords[i].code, 
 					   keywords[i].word ) ) );
   }  
-  /*
-  {
-    cout << "size: " << _current->size () << "\n";
-    list_type::iterator it = _contents.begin ();
-    for ( ; it != _contents.end (); ++it ) {
-      map_type::iterator jt = (*it).begin ();
-      for ( ; jt != (*it).end (); ++jt ) {
-	cout << jt->second << "\n";
-      }      
-    }
-  }
-  */
 }
 
 /* --------------------------------------------------------------------*/
@@ -155,14 +143,6 @@ symboltbl::iterator symboltbl::find_top ( symboltbl::key_type const & k ) {
 
 /* --------------------------------------------------------------------*/
 
-symboltbl::iterator symboltbl::find_bottom ( symboltbl::key_type const & k ) {
-  _current = _contents.end ();  
-  --_current;
-  return _current->find ( k );
-}
-
-/* --------------------------------------------------------------------*/
-
 void symboltbl::push () {
   _contents.push_front ( map_type () );
   _current = _contents.begin ();
@@ -175,4 +155,23 @@ void symboltbl::pop () {
     _contents.pop_front ();
     _current = _contents.begin ();
   }
+}
+
+/* --------------------------------------------------------------------*/
+
+int symboltbl::level () const {
+  /* --- keywords are in the bottom level on their own and are not 
+     really in their own scope, per say, so substract that from the
+     scopre level */
+  return _contents.size () - 1; 
+}
+
+/* --------------------------------------------------------------------*/
+
+void symboltbl::push_storage ( int ) {  
+}
+
+/* --------------------------------------------------------------------*/
+
+void symboltbl::pop_storage ( int ) {
 }

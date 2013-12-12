@@ -11,6 +11,7 @@
 
 #include "compiler.h"
 #include "parser.h"
+#include "assembler.h"
 #include <iostream>
 #include <exception>
 #include <fstream>
@@ -25,12 +26,15 @@
 using std::cin;
 using std::cout;
 using std::cerr;
+using std::exception;
+using std::ifstream;
+using std::ofstream;
 using std::setw;
 using std::setfill;
 using std::string;
-using std::ifstream;
-using std::ofstream;
-using std::exception;
+using std::stringstream;
+
+namespace apperr = error::application;
 
 /*----------------------------------------------------------------------
   Preprocessor Definitions
@@ -48,7 +52,9 @@ using std::exception;
   Main Methods
 ----------------------------------------------------------------------*/
 
-compiler::compiler ( int argc, char *argv[] ) {
+compiler::compiler ( int argc, char *argv[] ) 
+  : _sasm ( stringstream::in | stringstream::out ),
+    _parser ( _fin, _symbols, *this, *this ) {
   parse ( argc, argv );
 }
 
@@ -66,16 +72,17 @@ void compiler::parse ( int argc, char *argv[] ) {
     if ( '-' == *s && *++s ) {  /* -- if argument is an option */
       while ( *s ) {            /* traverse options */
         switch ( *s++ ) {       /* evaluate switches */
-        case 'v': _verbose = true;        break;
+        case 'v': _verbose = true;               break;
         default : 
-	  error ( E_OPTION, *--s ); break;
+	  error ( apperr::unknown_option, *--s ); break;
         }                       /* set option variables */
         if ( optarg && *s ) { *optarg = s; optarg = NULL; break; }
       } }                       /* get option argument */
     else {                      /* -- if argument is no option */
       switch ( k++ ) {          /* evaluate non-options */
-      case  0: _fn_in = s;               break;
-      default: error ( E_ARGCNT ); break;
+      case 0: _fn_in  = s;                       break;
+      case 1: _fn_out = s;                       break;
+      default: error ( apperr::argument_count ); break;
       }                         /* note filenames */
     }
   } 
@@ -84,27 +91,48 @@ void compiler::parse ( int argc, char *argv[] ) {
   if ( _fn_in ) {
     _fin.open ( _fn_in, ifstream::in );
     if ( !_fin.good () ) {
-      error ( E_FOPEN, _fn_in );
+      error ( apperr::file_open, _fn_in );
     }
   } else {
-    error ( E_NSRC, _fn_in );
+    error ( apperr::no_source_file, _fn_in );
   }
+
+  /* --- open output file --- */
+  if ( _fn_out ) {
+    _fout.open ( _fn_out, ofstream::out );
+    if ( !_fout.good () ) {
+      error ( apperr::file_open, _fn_out );
+    }	
+    /* this is a cute little STL trick: if there is a output file, 
+       redirect the stdout to it. */
+    _fout.copyfmt ( cout );     /* copy all format information */  
+    cout.rdbuf ( _fout.rdbuf () );
+  }       
 
 }
 
 /*--------------------------------------------------------------------*/
 
 int compiler::compile () {
-
-  /* --- create parser --- */  
+    
   try {
-    parser pl_parser ( _fin, _fn_in, _symbols );
-    pl_parser.parse ();
+  
+    /* --- parse the PL source --- */  
+    _parser.parse ();           
+    _fin.close ();              /* close the PL source file */
+
+    /* --- assemble the source --- */
+    Assembler assembler ( _sasm, cout );
+    assembler.firstPass (); 
+    _sasm.seekg ( stringstream::beg ); 
+    assembler.secondPass ();
+    _fout.close ();
+   
   } catch ( exception & e ) {   /* -- all fatals */
     cerr << "error: " << e.what () << '\n';
   }
-
+  
   return 0;
-
+  
 }
 

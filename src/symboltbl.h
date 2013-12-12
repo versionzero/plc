@@ -31,11 +31,11 @@ class symboltbl {
 
 private:
   
-  typedef std::map<std::string, token> map_type;
+  typedef std::map<std::string, token> map_type;  
   typedef std::list<map_type>          list_type;
 
   list_type                   _contents;  /* list of all the symbols */
-  mutable list_type::iterator _current;   /* current scope  */
+  mutable list_type::iterator _current;   /* current scope  */  
   
 public:  
 
@@ -58,13 +58,16 @@ public:
   std::pair<iterator, bool> insert ( key_type const &, mapped_type const & );  
 
   iterator find ( key_type const & ); 
-  iterator find_top ( key_type const & ); 
-  iterator find_bottom ( key_type const & ); 
+  iterator find_top ( key_type const & );   
   /* notice there is no const version of the above, we will implement it 
      when -- and if -- it become nessessary (which I hope it doesn't) */
 
   void push ();                 /* create a new scope (or block) */
-  void pop ();                  /* close the current scope */
+  void pop ();                  /* close the current scope */  
+  int  level () const;          /* current # of open scopes */
+
+  void push_storage ( int );
+  void pop_storage ( int );
 
 };
 

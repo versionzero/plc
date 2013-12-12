@@ -8,6 +8,7 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
+#include "symboltbl.h"
 #include "token.h"
 #include "error.h"
 #include <stdexcept>
@@ -19,6 +20,7 @@
 ----------------------------------------------------------------------*/
 
 class token;
+class symboltbl;
 
 /*----------------------------------------------------------------------
   Character Codes
@@ -42,10 +44,11 @@ class scanner {
 
 private:
   
-  std::ifstream  &_fin;         /* input stream reference */  
-  character::code _char_map[256]; /* characterization map */
-  int             _column;      /* current column number */
-  int             _line;        /* current line number */  
+  std::ifstream & _fin;         /* input stream reference */
+  symboltbl       _symbols;     /* main symbol table */
+  character::code _char_map[256];/* character characterization map */
+  unsigned int    _column,      /* current column number */
+                  _line;        /* current line number */  
   token           _token;       /* current token */
   
   bool iswhite ( int ) const;
@@ -64,9 +67,9 @@ private:
 public:
 
   scanner ( std::ifstream & );  
-  token const & next_token () throw ( std::runtime_error );  
-  int line () const;
-  int column () const;   
+  token const & next_token ();
+  unsigned int line () const;
+  unsigned int column () const;   
   
 };
 

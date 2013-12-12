@@ -56,7 +56,7 @@ int main ( int argc, char *argv[] ) { /* --- main function */
 	 << " - " << DESCRIPTION << " ("
 	 << PACKAGE_BUGREPORT << ")" << '\n';    
   } else {                      /* if no arguments given */
-    cout << "usage: " << PACKAGE << " [options] infile outfile" << '\n';
+    cout << "usage: " << PACKAGE << " [options] infile [outfile]" << '\n';
     cout << "infile     file to read PL code" << '\n';
     cout << "outfile    file to write VM code to" << '\n';
     return 0;                   /* print a usage message */

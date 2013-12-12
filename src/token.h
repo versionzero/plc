@@ -8,6 +8,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include "emitter.h"
 #include <string>
 
 /*----------------------------------------------------------------------
@@ -40,7 +41,6 @@ enum token_code {
   FALSE, 
   TRUE,
   IDENTIFIER,
-  WORD,
 
   LEFT_PAREN,                   // (
   LEFT_BRACKET,                 // [
@@ -75,7 +75,6 @@ enum token_code {
   INTEGER,
   PROC, 
   NUMBER,
-  INDEX,
 
   LAST_TOKEN
 };
@@ -103,7 +102,7 @@ namespace type {
     universal,
     boolean = BOOLEAN,
     integer = INTEGER
-  };
+  };  
 };
 
 /*----------------------------------------------------------------------
@@ -115,36 +114,50 @@ class token {
  private:
   
   token_code  _code;  
-  std::string _value;
+  std::string _svalue;
+  int         _ivalue;
   kind::code  _kind;
-  type::code  _type;
+  type::code  _type;  
+  int         _size;  
+  int         _level;
+  int         _displacement;
+  int         _start;
 
  public:
 
-  token ( token_code, std::string const & );  
+  token ( token_code, std::string const & );
+  token ( token_code, int );
   token ( token_code = NONE, 
 	  kind::code = kind::undefined,
 	  type::code = type::universal, 	  
-	  std::string const & = std::string () );  
-
+	  std::string const & = std::string (),
+	  int = 0, int = 0, int = 0, int = 0, int = -1 );  
+  
   void set_value ( std::string const & );
+  void set_value ( int );
   void set_type ( type::code );
   void set_kind ( kind::code );
+  void set_size ( int );  
+  void set_level ( int );
+  void set_displacement ( int );
+  void set_start ( int );
   
-  operator token_code () const;   
-  std::string value () const;
+  operator token_code () const;
+  void value ( std::string & ) const;
+  void value ( int & ) const;
   type::code type () const;
   kind::code kind () const;
+  int size () const;  
+  int level () const;
+  int displacement () const;
+  int start () const;
 
   static const char* name ( token_code );
   static const char* friendly_name ( token_code );
   static const token null;
+  static const token eof_token;
   
 };
-
-/* --------------------------------------------------------------------*/
-
-extern const token eof_token;
 
 #endif
 

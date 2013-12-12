@@ -1,10 +1,3 @@
-2007-03-14  Ben Burnett  <ben.burnett@gmail.com>
-
-	* src/parser.cc : added type and scope handling
-	* src/scanner.cc : removed all referenced to the symboltbl, as they
-	will all be handled in the parser now
-	* src/symboltbl.cc : added scope handling (vis. blocks)	
-
 2007-02-12  Ben Burnett  <ben.burnett@gmail.com>
 
 	* configure : added --enable-debug option; to enable/disable 
@@ -17,4 +10,4 @@
 
 2007-01-10  Ben Burnett  <ben.burnett@gmail.com>
 
-	* *.* (all) : project created 
+	* *.cc (all) : project created 

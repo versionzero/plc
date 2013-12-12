@@ -45,7 +45,6 @@ static const char *token_names[] = {
   "FALSE", 
   "TRUE",
   "IDENTIFIER",
-  "WORD",
   "LEFT_PAREN",                   
   "LEFT_BRACKET",                 
   "LOGICAL_NOT",
@@ -70,14 +69,13 @@ static const char *token_names[] = {
   "CONST",
   "INTEGER",
   "PROC", 
-  "NUMBER",
-  "INDEX"
+  "NUMBER"
 };
 
 /* --------------------------------------------------------------------*/
 
 static const char *friendly_names[] = {
-  "unknown",
+  "UNKNOWN",
   "EOF",
   "begin", 
   "end",   
@@ -95,7 +93,6 @@ static const char *friendly_names[] = {
   "false", 
   "true",
   "identifier",
-  "word",
   "(",                   
   "[",                 
   "~",
@@ -120,13 +117,12 @@ static const char *friendly_names[] = {
   "const",
   "integer",
   "proc", 
-  "number",
-  "index"
+  "number"
 };
 
 /* --------------------------------------------------------------------*/
 
-const token eof_token ( END_OF_FILE );
+const token token::eof_token ( END_OF_FILE );
 const token token::null ( NONE );
 
 /*----------------------------------------------------------------------
@@ -138,20 +134,39 @@ const token token::null ( NONE );
 ----------------------------------------------------------------------*/
 
 token::token ( token_code c, string const & s ) 
-  : _code ( c ), _value ( s ), _kind ( kind::undefined ), 
-    _type ( type::universal ) {
+  : _code ( c ), _svalue ( s ), _ivalue ( 0 ), _kind ( kind::undefined ), 
+    _type ( type::universal ), _size ( 1 ), _level ( 0 ), 
+    _displacement ( 0 ), _start ( -1 ) {
 }
 
 /* --------------------------------------------------------------------*/
 
-token::token ( token_code c, kind::code k, type::code t, string const & s ) 
-  : _code ( c ), _value ( s ), _kind ( k ), _type ( t ) {
+token::token ( token_code c, int i ) 
+  : _code ( c ), _svalue (), _ivalue ( i ), _kind ( kind::undefined ), 
+    _type ( type::universal ), _size ( 1 ), _level ( 0 ), 
+    _displacement ( 0 ), _start ( -1 ) {
+}
+
+/* --------------------------------------------------------------------*/
+
+token::token ( token_code c, kind::code kind, type::code type,
+	       std::string const & svalue, int ivalue, int size, int level, 
+	       int displacement, int start ) 
+  : _code ( c ), _svalue ( svalue ), _ivalue ( ivalue ), _kind ( kind ), 
+    _type ( type ), _size ( size ), _level ( level ), 
+    _displacement ( displacement ), _start ( start ) {
 }
 
 /* --------------------------------------------------------------------*/
 
 void token::set_value ( std::string const & s ) {
-  _value = s;
+  _svalue = s;
+}
+
+/* --------------------------------------------------------------------*/
+
+void token::set_value ( int i ) {
+  _ivalue = i;
 }
 
 /* --------------------------------------------------------------------*/
@@ -168,14 +183,44 @@ void token::set_kind ( kind::code k ) {
 
 /* --------------------------------------------------------------------*/
 
+void token::set_size ( int n ) {
+  _size = n;
+}
+
+/* --------------------------------------------------------------------*/
+
+void token::set_level ( int l ) {
+  _level = l;
+}
+
+/* --------------------------------------------------------------------*/
+
+void token::set_displacement ( int d ) {
+  _displacement = d;
+}
+
+/* --------------------------------------------------------------------*/
+
+void token::set_start ( int l ) {
+  _start = l;
+}
+
+/* --------------------------------------------------------------------*/
+
 token::operator token_code () const {
   return _code;
 }
 
 /* --------------------------------------------------------------------*/
 
-std::string token::value () const {
-  return _value;
+void token::value ( string & s ) const {
+  s = _svalue;
+}
+
+/* --------------------------------------------------------------------*/
+
+void token::value ( int & i ) const {
+  i = _ivalue;
 }
 
 /* --------------------------------------------------------------------*/
@@ -192,15 +237,36 @@ kind::code token::kind () const {
 
 /* --------------------------------------------------------------------*/
 
+int token::size () const {
+  return _size;
+}
+
+/* --------------------------------------------------------------------*/
+  
+int token::level () const {
+  return _level;
+}
+
+/* --------------------------------------------------------------------*/
+
+int token::displacement () const {
+  return _displacement;
+}
+
+/* --------------------------------------------------------------------*/
+
+int token::start () const {
+  return _start;
+}
+
+/* --------------------------------------------------------------------*/
+
 const char* token::name ( token_code c ) {
   assert ( c >= FIRST_TOKEN && c <= LAST_TOKEN );
   return token_names[c];
 }
 
 /* --------------------------------------------------------------------*/
-
-#include <iostream>
-using std::cout;
 
 const char* token::friendly_name ( token_code c ) {
   assert ( c >= FIRST_TOKEN && c <= LAST_TOKEN );

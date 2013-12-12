@@ -3,7 +3,7 @@ $ File    : rc4.p
 $ Contents: PL implementation of the RC4 stream generator
 $ Author  : Ben Burnett
 $ History : 15.02.2007 file created
-$           18.02.2007 made the key repeat in T propoerly
+$           18.02.2007 made the key repeat in T properly
 $$
 
 $$

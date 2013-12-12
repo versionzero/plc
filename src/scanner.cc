@@ -11,11 +11,7 @@
 
 #include "scanner.h"
 #include "misc.h"
-
-
-#include <iostream>
-using std::cout;
-
+#include <cstdlib>
 
 /*----------------------------------------------------------------------
   Namespace Inclusions
@@ -23,7 +19,6 @@ using std::cout;
 
 using std::string;
 using std::ifstream;
-using std::runtime_error;
 
 /*----------------------------------------------------------------------
   Constants
@@ -140,9 +135,14 @@ void scanner::scan_word () {
     get ( c ); 
     s += c;
   }
-  _token = token ( WORD, s );  
+  symboltbl::iterator it = _symbols.find ( s );
+    if ( it == _symbols.end () ) {    /* if not in symbol table, then */
+    _token = token ( IDENTIFIER, s ); /* it's an identifier, so create a */
+    _symbols.insert ( s, _token );    /* new entry in the symbol table */
+  } else {
+    _token = it->second;
+  }
 }
-
 
 /* --------------------------------------------------------------------*/
 
@@ -153,7 +153,7 @@ void scanner::scan_numeral () {
     get ( c ); 
     s += c;
   }  
-  _token = token ( NUMBER, s );
+  _token = token ( NUMBER, ::atoi ( s.c_str () ) );  
 }
 
 /* --------------------------------------------------------------------*/
@@ -195,16 +195,16 @@ void scanner::scan_symbol () {
   case '(':  code = LEFT_PAREN;    break;
   case ')':  code = RIGHT_PAREN;   break;
   case ':':    
-    code = UNKNOWN;      /* no ':' symbol in PL ... */      
+    code = UNKNOWN;             /* no ':' symbol in PL ... */      
     if ( '=' == peek () ) {     /* := */
       s += ':';
       code = ASSIGN;
       get ( c );                /* eat next char */      
     } break;
   default:
-    /* ERROR -- can't get here, as we catch most unknown symbols before
+    /* ERROR -- can't get here, as we catch unknown symbols before
                 we enter this procedure */
-    throw runtime_error ( "unreachable case in scanner.cc" );
+    assert ( 0 );
     break;
   }  
   /* --- finally, create the token object */
@@ -214,13 +214,13 @@ void scanner::scan_symbol () {
 /* --------------------------------------------------------------------*/
 
 /* --- return the next token */
-token const & scanner::next_token () throw ( runtime_error ) { 
+token const & scanner::next_token () { 
   char d; string s;
   skipws ();                    /* -- skip all white-space, then based on */  
   int c = peek ();              /* the first character we decide how to */
   switch ( c ) {                /* continue scanning from here */
   case EOF:    
-    _token = eof_token;         /* -- looks like we are done, let the */
+    _token = token::eof_token;  /* -- looks like we are done, let the */
     break;                      /* higher level processors know */
   case '$':    
     while ( '\n' != peek () ) { /* -- we treat comments as white-space */
@@ -228,7 +228,7 @@ token const & scanner::next_token () throw ( runtime_error ) {
     return next_token ();       /* next token in the input stream */
     break;
   default:
-    switch ( _char_map[c] ) {   
+    switch ( _char_map[c] ) {     
     case character::letter: scan_word ();    break; 
     case character::digit:  scan_numeral (); break;
     case character::symbol: scan_symbol ();  break;
@@ -243,13 +243,13 @@ token const & scanner::next_token () throw ( runtime_error ) {
 
 /* --------------------------------------------------------------------*/
 
-int scanner::line () const {
+unsigned int scanner::line () const {
   return _line;
 }
 
 /* --------------------------------------------------------------------*/
 
-int scanner::column () const {
+unsigned int scanner::column () const {
   return _column;
 }
 

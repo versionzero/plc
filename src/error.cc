@@ -9,10 +9,16 @@
 #include <config.h>
 #endif 
 
+#include "compiler.h"
 #include "error.h"
-#include <cstdio>
-#include <cstdlib>
-#include <cstdarg>
+#include <iostream>
+
+/*----------------------------------------------------------------------
+  Namespace Inclusions
+----------------------------------------------------------------------*/
+
+using std::cerr;
+using std::string;
 
 /*----------------------------------------------------------------------
   Preprocessor Definitions
@@ -22,40 +28,73 @@
   Constants
 ----------------------------------------------------------------------*/
 
+#if 0
+/* E_OPTARG   -7 */  "missing option argument\n",
+#endif
+
 /* --- error messages --- */
-static const char *errmsgs[] = {
-  /* E_NONE      0 */  "no error\n",
-  /* E_NOMEM    -1 */  "not enough memory\n",
-  /* E_FOPEN    -2 */  "cannot open file %s\n",
-  /* E_FREAD    -3 */  "read error on file %s\n",
-  /* E_FWRITE   -4 */  "write error on file %s\n",
-  /* E_NSRC     -5 */  "no source file supplied\n",
-  /* E_OPTION   -6 */  "unknown option -%c\n",
-  /* E_OPTARG   -7 */  "missing option argument\n",
-  /* E_ARGCNT   -8 */  "wrong number of arguments\n",
-  /* E_UNKSYB   -9 */  "unknown symbol '%s'\n"
+static const char *_fatal_messages[] = {
+  /*   0 */  "no error\n",
+  /*  -1 */  "not enough memory\n",
+  /*  -2 */  "cannot open file %s\n",
+  /*  -3 */  "read error on file %s\n",
+  /*  -4 */  "write error on file %s\n",
+  /*  -5 */  "no source file supplied\n",
+  /*  -6 */  "no destination file supplied\n",
+  /*  -7 */  "unknown option -%c\n",
+  /*  -8 */  "wrong number of arguments\n",
+};  
+
+static const char *_input_messages[] = {
+  /*   0 */  "no error\n",
+  /*  -1 */  "unrecognized symbol `%s'\n",
+  /*  -2 */  "unexpected symbol `%s'\n",
+  /*  -3 */  "expected `%s' before `%s' token\n",
+  /*  -4 */  "duplicate symbol `%s'\n",
+  /*  -5 */  "undefined symbol `%s'\n",
+  /*  -6 */  "non-constant `%s' used in a constant expression\n",
+  /*  -7 */  "type mismatch\n",
+  /*  -8 */  "`%s' is not a procedure\n",
+  /*  -9 */  "unbalanced assignment statement; %s is heavy\n",
+  /* -10 */  "boolean expression expected\n",
+  /* -11 */  "integer expression expected\n"
 };
 
 /*----------------------------------------------------------------------
   Functions
 ----------------------------------------------------------------------*/
 
-void error ( error_code code, ... )
-{                               /* --- print an error message */
-  va_list    args;              /* list of variable arguments */
+void compiler::error ( error::application::code code, ... ) const
+{                               /* --- print an error message and quit */
+  va_list     args;             /* list of variable arguments */
   const char *msg;              /* error message */
-
-  if ( code < E_UNKNOWN ) {
-    code = E_UNKNOWN;
-  }
+  if ( code < error::application::unknown ) {
+    code = error::application::unknown; }
   if ( code < 0 ) {             /* if to report an error, */
-    msg = errmsgs[-code];       /* get the error message */
-    if (!msg) msg = errmsgs[-E_UNKNOWN];
-    fprintf ( stderr, "\n%s: ", PACKAGE );
+    msg = _fatal_messages[-code]; /* get the error message */
+    if ( !msg ) { msg = _fatal_messages[-error::application::unknown]; }   
+    fprintf ( stderr, "%s: ", PACKAGE );
     va_start ( args, code );    /* get variable arguments */
     vfprintf ( stderr, msg, args ); /* print error message */
     va_end ( args );            /* end argument evaluation */
   }
   exit ( code );                /* abort the program */
-}  /* error() */
+}  
 
+/* --------------------------------------------------------------------*/
+
+void compiler::error ( error::input::code code, ... ) const
+{                               /* --- print an error message */
+  va_list     args;             /* list of variable arguments */
+  const char *msg;              /* error message */
+  if ( code < error::input::unknown ) { 
+    code = error::input::unknown; }
+  if ( code < 0 ) {             /* if to report an error, */
+    msg = _input_messages[-code]; /* get the error message */
+    if ( !msg ) { msg = _input_messages[-error::input::unknown]; }
+    fprintf ( stderr, "%s:%3d: error: ", _fn_in, _parser.line () );
+    va_start ( args, code );    /* get variable arguments */
+    vfprintf ( stderr, msg, args ); /* print error message */    
+    va_end ( args );            /* end argument evaluation */  
+  }  
+}  

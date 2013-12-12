@@ -26,7 +26,7 @@ begin
 
    call c;
    call h;
-   call g; $ error! not in the correct scope
+   call g; $ error! not in the correct scope (so, undefined)
    call ;
    write 5;
 
