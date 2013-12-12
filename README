@@ -1,0 +1,123 @@
+
+== Introduction ==
+
+The Project Language Compiler (or PLC, as we shall refer to it from here on 
+in) is a basic "Project Language" compiler designed to meet the requirements
+for CPSC4600 at the University of Lethbridge.
+
+The current version of the compiler is written with out the aid of scanner or
+parser generating tools; however, this may change in future versions, as the
+project develops.
+
+The current version of the compiler does not do much, other than scan an input 
+stream, and output tokens as it seems them.  The output takes the following 
+form:
+
+ <filename.p>:<line#>[<column#>]: <TOKEN ID>: <token value>
+
+For instance, the following code:
+
+ begin
+    const num = 10;
+    integer x, y;
+    proc max
+    $ this is a comment!
+    begin
+       if x > y -> write x. [] ~(x > y) -> write y.
+       fi
+    end
+ end. 
+
+generates:
+
+ ...
+ plc:2[0]: BEGIN: begin
+ plc:3[3]: CONST: const
+ plc:3[2]: IDENTIFIER: num
+ plc:3[9]: EQUAL: =
+ plc:3[10]: INTEGER: 10
+ plc:3[9]: SEMICOLON: ;
+ plc:4[3]: INTEGER: integer
+ plc:4[2]: IDENTIFIER: x
+ plc:4[8]: COMMA: ,
+ plc:4[5]: IDENTIFIER: y
+ plc:4[7]: SEMICOLON: ;
+ plc:5[3]: PROC: proc
+ plc:5[1]: IDENTIFIER: max
+ ...
+
+as it's output.  Yup, that's about as special as it gets for now.
+
+== How to build the PLC == 
+
+To build the project, simply run:
+
+ # ./configure
+ # make -j
+   
+This will configure and build PLC.  The -j flag for make compiles multiple 
+files in parrallel (helpful if you have distcc, a dual-core or a 
+dual-processor machine). Like many GNU projects, you can install the compiler
+locally, using the following:
+
+ # make install
+
+Alternatively, you can run it with no installation:
+
+ # cd src
+ # ./plc everything.p
+
+The above will run the PLC using everything.p as the input source file. Also
+in the source directory is a file called unknown.p, which has a syntax error
+in it.  This file demonstrates the error handling built in to the PLC.
+
+== Design ==
+
+The design of the PLC is derived from many sources.  The initial skeleton code
+was based on a previous project for Bioinformatics.  This provided the code
+for file-handling and command-line processing, as well as some error handling 
+methods.  However, by the end of this project, most of this initial code will
+have been dispensed with.  It was only used to speed up the process of codeing.
+
+The error handling code, for instance, does not scale well, and will be 
+replaced with a new system.  This new system will use C++ exceptions and
+will allow a great deal of the error handling to be moved out of the logic
+of the compiler.  This will simplify any future changes in the scanner as 
+well as the compiler itself.  Also, it should improve readability, by removing
+all the current checks.
+
+The second phase of the project, once we start adding the parser, will bring 
+a new top level control systems as well.  Currently, the symbol table, as well
+as the scanner itself, is "owned" by the main function.  In the future, there
+will be a top level compiler object, which will take ownership of the symbol
+table, the scanner, as well as the parser.  This will be useful, as well, once
+the code generation phase is upon us; then, it will also own a code generation
+object.
+
+== Structure ==
+
+=== Classes ===
+
+* symboltbl            symbol table used by the compiler
+* scanner	       actual scanning mechanisms
+* scanner_error	       used to represent errors specific to scanning 
+** unkown_symbol       an error that can be encountered while scanning;
+   		       namely, when we encounter a symbol we do not 
+		       recognize
+* token		       holds all the information about a single token
+
+=== Files ===
+
+* src/error.{cc,h}     these files contain all the error handling and recovery
+  		       code.  
+* src/misc.{cc,h}      code that does not fit nicely in to any other place
+  		       is kept here
+* src/plc.{cc,h}       these contain the compiler's main entry point, as well
+  		       as any globaly accessible structures
+* src/scanner.{cc,h}   in here is all the code for scanning an input stream
+  		       and converting character streams in to token streams
+* src/symboltbl.{cc,h} an implementation of a symbol table
+* src/token.{cc,h}     contains all the code related to tokens, all their
+  		       unique IDs, as well as string representations of the
+		       tokens themselves.
+

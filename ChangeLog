@@ -1,0 +1,8 @@
+2007-01-25  Ben Burnett  <ben.burnett@gmail.com>
+
+	* src/plc.cc (main) : fixed annoying bug where the column information 
+	for error and informational messages was way incorrect.	
+
+2007-01-10  Ben Burnett  <ben.burnett@gmail.com>
+
+	* *.cc (all) : project created 
