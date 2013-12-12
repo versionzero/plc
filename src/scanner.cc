@@ -49,51 +49,50 @@ static const int wschars[] = { ' ', '\t', '\n' };
   Main Methods
 ----------------------------------------------------------------------*/
 
-scanner::scanner ( ifstream & s, symboltbl & t )
-  : _fin ( s ), _symbols ( t ), 
-    _column ( 0 ), _line ( 1 ) {
+scanner::scanner ( ifstream & s )
+  : _fin ( s ), _column ( 0 ), _line ( 1 ) {
   unsigned int i;
   for ( i = 0; i < 128; ++i ) {
-    _char_map[i] = C_ERROR;
+    _char_map[i] = character::error;
   }
   for ( i = 'a'; i <= 'z'; ++i ) {
-    _char_map[i] = C_LETTER;
+    _char_map[i] = character::letter;
   }
   for ( i = 'A'; i <= 'Z'; ++i ) {
-    _char_map[i] = C_LETTER;
+    _char_map[i] = character::letter;
   }
   for ( i = 0; i < count_of ( extra_letters ); ++i ) {
-    _char_map[extra_letters[i]] = C_LETTER;
+    _char_map[extra_letters[i]] = character::letter;
   }  
   for ( i = '0'; i <= '9'; ++i ) {
-    _char_map[i] = C_DIGIT;
+    _char_map[i] = character::digit;
   }
   for ( i = 0; i < count_of ( symbols ); ++i ) {
-    _char_map[symbols[i]] = C_SYMBOL;
+    _char_map[symbols[i]] = character::symbol;
   }
   for ( i = 0; i < count_of ( wschars ); ++i ) {
-    _char_map[wschars[i]] = C_WS;
+    _char_map[wschars[i]] = character::ws;
   }
 }
 
 /* --------------------------------------------------------------------*/
 
 bool scanner::iswhite ( int c ) const {  /* --- returns true if c is a */
-  return ( C_WS == _char_map[c] ); /* white-space character */
+  return ( character::ws == _char_map[c] ); /* white-space character */
 }
 
 /* --------------------------------------------------------------------*/
 
 bool scanner::iswordchar ( int c ) const { /* --- return true if character */
-  return ( C_LETTER == _char_map[c] || /* is a valid word character */
-	   C_DIGIT == _char_map[c] ||
+  return ( character::letter == _char_map[c] || /* is a valid word character */
+	   character::digit == _char_map[c] ||
 	   '_' == _char_map[c] );
 }
 
 /* --------------------------------------------------------------------*/
 
 bool scanner::isnumeral ( int c ) const { /* --- return true if a number */
-  return ( C_DIGIT == _char_map[c] );
+  return ( character::digit == _char_map[c] );
 }
 
 /* --------------------------------------------------------------------*/
@@ -141,14 +140,9 @@ void scanner::scan_word () {
     get ( c ); 
     s += c;
   }
-  symboltbl::iterator it = _symbols.find ( s );
-    if ( it == _symbols.end () ) {    /* if not in symbol table, then */
-    _token = token ( IDENTIFIER, s ); /* it's an identifier, so create a */
-    _symbols.insert ( s, _token );    /* new entry in the symbol table */
-  } else {
-    _token = it->second;
-  }
+  _token = token ( WORD, s );  
 }
+
 
 /* --------------------------------------------------------------------*/
 
@@ -201,7 +195,7 @@ void scanner::scan_symbol () {
   case '(':  code = LEFT_PAREN;    break;
   case ')':  code = RIGHT_PAREN;   break;
   case ':':    
-    code = UNKNOWN;             /* no ':' symbol in PL ... */      
+    code = UNKNOWN;      /* no ':' symbol in PL ... */      
     if ( '=' == peek () ) {     /* := */
       s += ':';
       code = ASSIGN;
@@ -216,18 +210,6 @@ void scanner::scan_symbol () {
   /* --- finally, create the token object */
   _token = token ( code, s += c );
 }
-
-/* -- see next_token 
-  case '$':  
-    s += c;
-    code = COMMENT;    
-    while ( '\n' != peek () ) { 
-      get ( c ); 
-      s += c;
-    }
-    c = ' ';
-    break;
-*/
 
 /* --------------------------------------------------------------------*/
 
@@ -246,10 +228,10 @@ token const & scanner::next_token () throw ( runtime_error ) {
     return next_token ();       /* next token in the input stream */
     break;
   default:
-    switch ( _char_map[c] ) {     
-    case C_LETTER: scan_word ();    break; 
-    case C_DIGIT:  scan_numeral (); break;
-    case C_SYMBOL: scan_symbol ();  break;
+    switch ( _char_map[c] ) {   
+    case character::letter: scan_word ();    break; 
+    case character::digit:  scan_numeral (); break;
+    case character::symbol: scan_symbol ();  break;
     default: 
       _token = token ( UNKNOWN, s += c );
       get ( d );                /* consume the unknown character */

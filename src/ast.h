@@ -8,6 +8,10 @@
 #ifndef AST_H
 #define AST_H
 
+#include "token.h"
+
+namespace ast {
+
 /*----------------------------------------------------------------------
   Forward Declarations
 ----------------------------------------------------------------------*/
@@ -18,8 +22,14 @@
 
 class ast {
 
-  int _column,                  /* node's column number */
-      _line;                    /* node's line number */
+  friend class parser;          /* all derived class will now be friendly 
+				   with the parser ... that is, they'll
+				   show it their protected members */
+
+protected:
+ 
+  int        _column,           /* node's column number */
+             _line;             /* node's line number */
   
 public:
 
@@ -36,9 +46,17 @@ public:
 
 class expression : public ast {
 
+protected:
+  
+  token      _op;
+  type::code _type;
+  
 public:
 
-  expression ();
+  expression ( token const & = token (), type::code = type::universal );
+  
+  type::code type () const;
+  void set_type ( type::code );
 
 };
 
@@ -46,9 +64,16 @@ public:
 
 class identifier : public expression {
 
+private:
+  
+  int _offset;
+  
 public:
 
-  identifier ();
+  identifier ( token const &, type::code, int );
+  /* -- might be able to get type from the token */
+
+  operator int () const;
 
 };
 
@@ -57,8 +82,13 @@ public:
 class constant : public expression {
 
 public:
+  
+  constant ( token const &, type::code = type::universal );
 
-  constant ();
+  static constant true$;
+  static constant false$;
+
+  void set_value ( token const & );
 
 };
 
@@ -70,7 +100,7 @@ class op : public expression {
 
 public:
 
-  op ();
+  op ( token const &, type::code );
 
 };
 
@@ -98,9 +128,17 @@ public:
 
 class access : public op {
 
+private:
+
+  identifier _array;
+  expression _index;
+
 public:
 
-  access ();
+  access ( identifier, expression, type::code );
+
+  identifier const & get_array () const;
+  expression const & get_index () const;
 
 };
 
@@ -241,6 +279,8 @@ public:
   procedure ();
 
 };
+
+}
 
 #endif
 

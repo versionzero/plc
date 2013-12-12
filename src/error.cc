@@ -10,14 +10,9 @@
 #endif 
 
 #include "error.h"
-#include <iostream>
-
-/*----------------------------------------------------------------------
-  Namespace Inclusions
-----------------------------------------------------------------------*/
-
-using std::cerr;
-using std::string;
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 
 /*----------------------------------------------------------------------
   Preprocessor Definitions
@@ -63,16 +58,4 @@ void error ( error_code code, ... )
   }
   exit ( code );                /* abort the program */
 }  /* error() */
-
-/*----------------------------------------------------------------------
-  Main Methods
-----------------------------------------------------------------------*/
-
-plc_exception::plc_exception ( error_code e ) throw () 
-  : _code ( e ) {
-}
- 
-plc_exception::operator error_code () const throw () {
-  return _code;
-}
 

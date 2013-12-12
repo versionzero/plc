@@ -8,11 +8,8 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#include <exception>
-#include <string>
-
 /*----------------------------------------------------------------------
-  Compiler Error Codes (Temporary, during beggining phases)
+  Error Codes
 ----------------------------------------------------------------------*/
 
 enum error_code {
@@ -25,9 +22,14 @@ enum error_code {
   E_OPTION  = -6,               /* unknown option */
   E_OPTARG  = -7,               /* missing option argument */
   E_ARGCNT  = -8,               /* too few/many arguments */
-  E_UNKSYB  = -9,               /* unknown symbol */
-  E_SYNTAX  = -10,              /* syntax error */
-  E_UNKNOWN = -11               /* unknown error */
+  E_SYNTAX  = -9,               /* syntax error */
+  E_SYMBOL  = -10,              /* undefined symbol */
+  E_CONST   = -11,              /* non-constant used in a constant expression */
+  E_TYPE    = -12,              /* type error */
+  E_DUP     = -13,              /* duplicate symbol */
+  E_PROC    = -14,              /* not a procedure */
+  E_BOOLEAN = -15,              /* boolean expression expected */
+  E_UNKNOWN = -16               /* unknown error */
 };
 
 /*----------------------------------------------------------------------
@@ -35,55 +37,6 @@ enum error_code {
 ----------------------------------------------------------------------*/
 
 void error ( error_code code, ... );
-
-/*----------------------------------------------------------------------
-  Exceptions (Future error handling, once the project is all done)
-----------------------------------------------------------------------*/
-
-/* --- project language compiler base exception */
-class plc_exception : public std::exception { 
-  
-private:
-  
-  error_code _code;
-
-public:
-
-  plc_exception ( error_code ) throw ();
-  operator error_code () const throw ();
-
-};
-
-/* --------------------------------------------------------------------*/
-
-/* --- application level exception base */
-/*
-class compiler_exception : public pcl_exception { 
-};
-*/
-
-/* --------------------------------------------------------------------*/
-
-/* --- scanner level exception base */
-/*
-class scanner_exception : public pcl_exception { 
-};
-*/
-
-/* --------------------------------------------------------------------*/
-
-/*
-class unkown_symbol : public scanner_exception {
-
-  char _symbol;
-
- public:
-
-  unkown_symbol ( char c ) throw ();
-  const char* what () const throw ();
-
-};
-*/
 
 #endif
 

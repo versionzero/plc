@@ -64,6 +64,106 @@ does is allow the code to spit out parse tree information.  So, while there
 is no actual parse tree maintained in the application itself, it can be 
 observed during runtime as the parser descends into the parse tree.
 
+=== Type Checking Phase ===
+
+After a great deal of sweat, tears and lost hair the compiler now has type
+checking.  There were a number of changes that took place.  First, the 
+scanner was simplified and all references to the symbol table were removed
+from it.  This responsibility was moved in to the parser to increase its
+flexibility.  Additional error handling was added to handle type errors, as 
+well as the new semantic errors, such as duplicate symbol declarations within
+the same scope.
+
+First, lets look at some type definitions:
+
+     1  begin
+     2  integer x;
+     3  integer array q[10];
+     4  integer y, z;
+     5  integer array r[ 10 ];
+     6  integer u, v, w;
+     7  integer w;
+     8  Boolean b;
+     9  const c = 10;   $ ok!
+    10  const d = true; $ ok!
+    11  const e = d;    $ ok!
+    12  const f = v;    $ v is non-constant
+    13  const g = f;    $ ok! - but only silently ok
+    14  const h = g;    $ ok!
+    15  const i = ggg;  $ ggg not defined
+    16  const j = j;    $ this *should* be an error
+    17  const x = 10;   $ already an integer
+    18  end.
+
+will produce the following lovely output:
+
+ plc 0.3 - PL language compiler [debug build] (ben.burnett@gmail.com)
+ ...
+ vartest2.p:11: error: non-constant `v' used in a constant expression
+ vartest2.p:14: error: undefined symbol `ggg'
+ vartest2.p:14: error: expected `identifier' before `ggg' token
+ vartest2.p:15: error: undefined symbol `j'
+ vartest2.p:15: error: expected `identifier' before `j' token
+ vartest2.p:16: error: duplicate symbol `x'
+ ...
+
+Now for procedure definitions:
+
+     1
+     2  begin
+     3
+     4     integer i;
+     5     Boolean b;
+     6     const c = 10;
+     7       
+     8     proc f begin
+     9        proc g begin
+    10           write 7;
+    11        end;
+    12        call b;
+    13        call g;
+    14        write 6;
+    15     end;
+    16        
+    17     proc h begin
+    18        write 9;
+    19        call f;
+    20     end;
+    21
+    22     proc l begin
+    23        write 10;
+    24        call i;   $ error! not a proc
+    25     end;
+    26
+    27     call c;
+    28     call h;
+    29     call g; $ error! not in the correct scope
+    30     write 5;
+    31
+    32  end.
+
+will produce the following output:
+
+ plc 0.3 - PL language compiler [debug build] (ben.burnett@gmail.com)
+ ...
+ proctest3.p:24: error: `i' is not a procedure
+ proctest3.p:27: error: `c' is not a procedure
+ proctest3.p:29: error: undefined symbol `g'
+ proctest3.p:29: error: expected `identifier' before `g' token
+ ...
+
+The biggest issue with this phase was making the decisions between design
+and efficiency.  Because of previous design decisions, some of the addition
+that were required would either require additional searches (in the symbol
+table), or the addition of "spaghetti" code to remember information temporarily.
+I chose the former because the actual efficiency can be improved by changing 
+the data structure.  Currently I use a red-black tree for the symbol table; 
+however, a hash table would allow constant time access, making the above 
+searching problem a non-issue.  Therefore, for the benefit of myself, and 
+anyone who decides to read this code, I've opted for the simpler re-search 
+approach.  In the future I may change the data structure to get rid of 
+the O(log n) search time.
+
 == How to build the PLC == 
 
 To build the project, simply run:

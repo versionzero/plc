@@ -45,6 +45,7 @@ static const char *token_names[] = {
   "FALSE", 
   "TRUE",
   "IDENTIFIER",
+  "WORD",
   "LEFT_PAREN",                   
   "LEFT_BRACKET",                 
   "LOGICAL_NOT",
@@ -69,13 +70,14 @@ static const char *token_names[] = {
   "CONST",
   "INTEGER",
   "PROC", 
-  "NUMBER"
+  "NUMBER",
+  "INDEX"
 };
 
 /* --------------------------------------------------------------------*/
 
 static const char *friendly_names[] = {
-  "UNKNOWN",
+  "unknown",
   "EOF",
   "begin", 
   "end",   
@@ -93,6 +95,7 @@ static const char *friendly_names[] = {
   "false", 
   "true",
   "identifier",
+  "word",
   "(",                   
   "[",                 
   "~",
@@ -117,12 +120,14 @@ static const char *friendly_names[] = {
   "const",
   "integer",
   "proc", 
-  "number"
+  "number",
+  "index"
 };
 
 /* --------------------------------------------------------------------*/
 
 const token eof_token ( END_OF_FILE );
+const token token::null ( NONE );
 
 /*----------------------------------------------------------------------
   Helper Functions
@@ -133,7 +138,32 @@ const token eof_token ( END_OF_FILE );
 ----------------------------------------------------------------------*/
 
 token::token ( token_code c, string const & s ) 
-  : _code ( c ), _value ( s ) {
+  : _code ( c ), _value ( s ), _kind ( kind::undefined ), 
+    _type ( type::universal ) {
+}
+
+/* --------------------------------------------------------------------*/
+
+token::token ( token_code c, kind::code k, type::code t, string const & s ) 
+  : _code ( c ), _value ( s ), _kind ( k ), _type ( t ) {
+}
+
+/* --------------------------------------------------------------------*/
+
+void token::set_value ( std::string const & s ) {
+  _value = s;
+}
+
+/* --------------------------------------------------------------------*/
+
+void token::set_type ( type::code t ) {
+  _type = t;
+}
+
+/* --------------------------------------------------------------------*/
+
+void token::set_kind ( kind::code k ) {
+  _kind = k;
 }
 
 /* --------------------------------------------------------------------*/
@@ -146,6 +176,18 @@ token::operator token_code () const {
 
 std::string token::value () const {
   return _value;
+}
+
+/* --------------------------------------------------------------------*/
+
+type::code token::type () const {
+  return _type;
+}
+
+/* --------------------------------------------------------------------*/
+
+kind::code token::kind () const {
+  return _kind;
 }
 
 /* --------------------------------------------------------------------*/

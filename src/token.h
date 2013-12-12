@@ -40,6 +40,7 @@ enum token_code {
   FALSE, 
   TRUE,
   IDENTIFIER,
+  WORD,
 
   LEFT_PAREN,                   // (
   LEFT_BRACKET,                 // [
@@ -74,8 +75,35 @@ enum token_code {
   INTEGER,
   PROC, 
   NUMBER,
+  INDEX,
 
   LAST_TOKEN
+};
+
+/*----------------------------------------------------------------------
+  Kind Codes
+----------------------------------------------------------------------*/
+
+namespace kind { 
+  enum code { 
+    constant,  
+    variable, 
+    array,
+    procedure,
+    undefined
+   }; 
+}; 
+
+/*----------------------------------------------------------------------
+  Type Codes
+----------------------------------------------------------------------*/
+
+namespace type {
+  enum code {
+    universal,
+    boolean = BOOLEAN,
+    integer = INTEGER
+  };
 };
 
 /*----------------------------------------------------------------------
@@ -88,15 +116,29 @@ class token {
   
   token_code  _code;  
   std::string _value;
+  kind::code  _kind;
+  type::code  _type;
 
  public:
 
-  token ( token_code = NONE, std::string const & = std::string () );  
-  operator token_code () const; 
+  token ( token_code, std::string const & );  
+  token ( token_code = NONE, 
+	  kind::code = kind::undefined,
+	  type::code = type::universal, 	  
+	  std::string const & = std::string () );  
+
+  void set_value ( std::string const & );
+  void set_type ( type::code );
+  void set_kind ( kind::code );
+  
+  operator token_code () const;   
   std::string value () const;
+  type::code type () const;
+  kind::code kind () const;
 
   static const char* name ( token_code );
   static const char* friendly_name ( token_code );
+  static const token null;
   
 };
 

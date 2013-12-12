@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([plc], [0.2], [ben.burnett@gmail.com])
+AC_INIT([plc], [0.3], [ben.burnett@gmail.com])
 
 AM_CONFIG_HEADER([config.h])
 AC_CONFIG_SRCDIR([src/plc.cc])
