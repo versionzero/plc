@@ -1,0 +1,47 @@
+// END_OF_FILE, BEGIN, END, PROC, SKIP, READ, WRITE, CALL, IF, DO, FI, 
+// OD, SEMICOLON, COMMA, PERIOD, FALSE, TRUE, IDENTIFIER, LEFT_PAREN,
+// LEFT_BRACKET, LOGICAL_NOT, PLUS, MINUS, LOGICAL_OR, 
+// LOGICAL_AND, EQUAL, GREATER_THAN, LESS_THAN, MULTIPLY, DIVIDE, MODULO, 
+// GUARD_SEPARATOR, ASSIGN, LAST_ASSIGN, GUARD_POINT, RIGHT_PAREN, 
+// RIGHT_BRACKET, COMMENT, ARRAY, BOOLEAN, CONST, INTEGER 
+Program = Block "." .
+Block = "begin" DefinitionPart StatementPart "end" . 
+DefinitionPart = { Definition ";" } .
+Definition = ConstantDefinition | VariableDefinition1 | ProcedureDefinition .
+ConstantDefinition = "const" ConstantName "=" Constant .
+VariableDefinition1 = TypeSymbol VariableDefinition2 .
+VariableDefinition2 = VariableList | "array" VariableList "[" Constant "]" .
+TypeSymbol =  "integer" | "Boolean" .
+VariableList = VariableName { "," VariableName } .
+ProcedureDefinition = "proc" ProcedureName Block .
+StatementPart = { Statement ";" } .
+Statement = EmptyStatement | ReadStatement | WriteStatement | \
+   AssignmentStatement | ProcedureStatement | IfStatement | \
+   DoStatement .
+EmptyStatement = "skip" .
+ReadStatement = "read" VariableAccessList .
+VariableAccessList = VariableAccess { "," VariableAccess } .
+WriteStatement = "write" ExpressionList .
+ExpressionList = Expression { "," Expression } .
+AssignmentStatement = VariableAccessList ":=" ExpressionList .
+ProcedureStatement = "call" ProcedureName .
+IfStatement = "if" GuardedCommandList "fi" .
+DoStatement =  "do" GuardedCommandList "od" .
+GuardedCommandList = GuardedCommand { "[]" GuardedCommand } . 
+GuardedCommand = Expression "->" StatementPart .
+Expression = PrimaryExpression { PrimaryOperator PrimaryExpression } 
+PrimaryOperator = "&" | "|" .
+PrimaryExpression = SimpleExpression [ RelationalOperator SimpleExpression ] .
+RelationalOperator = "<" | "=" | ">" .
+SimpleExpression = [ "-" ] Term { AddingOperator Term } .
+AddingOperator = "+" | "-" .
+Term = Factor { MultiplyingOperator Factor } .
+MultiplyingOperator = "*" | "/" | "\" .
+Factor = Constant | VariableAccess | "(" Expression ")" | "~" Factor .
+VariableAccess = VariableName [ IndexedSelector ] .
+IndexedSelector = "[" Expression "]" .
+Constant = Numeral | BooleanSymbol | ConstantName .
+Numeral = Digit { Digit } .
+BooleanSymbol = "false" | "true" .
+Name = Letter { Letter | Digit | "_" } .
+
