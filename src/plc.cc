@@ -9,7 +9,7 @@
 #include <config.h>
 #endif 
 
-#include "scanner.h"
+#include "parser.h"
 #include "error.h"
 #include <exception>
 #include <fstream>
@@ -24,7 +24,6 @@
 using std::cin;
 using std::cout;
 using std::cerr;
-using std::endl;
 using std::setw;
 using std::setfill;
 using std::string;
@@ -40,7 +39,11 @@ using std::exception;
   Constants
 ----------------------------------------------------------------------*/
 
+#ifdef NDEBUG
 #define DESCRIPTION "PL language compiler"
+#else
+#define DESCRIPTION "PL language compiler [debug build]"
+#endif
 
 /*----------------------------------------------------------------------
   Global Variables
@@ -65,17 +68,17 @@ int main ( int argc, char *argv[] ) { /* --- main function */
             *fn_out;
   ifstream  fin;                 /* input stream */
   ofstream  fout;                /* ouput stream */
-  symboltbl table;               /* main symbol table */
+  symboltbl symbols;             /* main symbol table */
 				   
   /* --- print usage message --- */
   if ( argc > 1 ) {             /* if arguments are given */
     cerr << PACKAGE_STRING      /* print a startup message */
 	 << " - " << DESCRIPTION << " ("
-	 << PACKAGE_BUGREPORT << ")" << endl;    
+	 << PACKAGE_BUGREPORT << ")" << '\n';    
   } else {                      /* if no arguments given */
-    cout << "usage: " << PACKAGE << " [options] infile outfile" << endl;
-    cout << "infile     file to read PL code" << endl;
-    cout << "outfile    file to write VM code to" << endl;
+    cout << "usage: " << PACKAGE << " [options] infile outfile" << '\n';
+    cout << "infile     file to read PL code" << '\n';
+    cout << "outfile    file to write VM code to" << '\n';
     return 0;                   /* print a usage message */
   }                             /* and abort the program */
 
@@ -110,6 +113,15 @@ int main ( int argc, char *argv[] ) { /* --- main function */
     error ( E_NSRC, fn_in );
   }
 
+  /* --- create parser --- */  
+  try {
+    parser pl_parser ( fin, fn_in, symbols );
+    pl_parser.parse ();
+  } catch ( exception & e ) {   /* -- all errors */
+    cerr << "error: " << e.what () << '\n';
+  }
+
+#if 0
   /* --- create scanner --- */  
   scanner scan ( fin, table );
   try {
@@ -119,13 +131,14 @@ int main ( int argc, char *argv[] ) { /* --- main function */
 	     value = tok.value ();      
       cout << fn_in << ":" << scan.line () 
 	   << "[" << scan.column () - value.length () << "]: "
-	   << name << ": " << value << endl;    
+	   << name << ": " << value << '\n';    
     }
   } catch ( scanner::unknown_symbol & e ) { /* -- scanner error */
     cerr << fn_in << ":" <<  scan.line () << "[" << scan.column () 
-	 << "]: error: " << e.what () << endl;
+	 << "]: error: " << e.what () << '\n';
   } catch ( exception & e ) { /* -- all other errors */
-    cerr << "Error: " << e.what () << endl;
+    cerr << "Error: " << e.what () << '\n';
   }
+#endif 
   
 }

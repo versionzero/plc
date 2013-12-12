@@ -9,6 +9,7 @@
 #include <config.h>
 #endif 
 
+#include <cassert>
 #include "token.h"
 
 /*----------------------------------------------------------------------
@@ -26,10 +27,10 @@ using std::string;
 ----------------------------------------------------------------------*/
 
 static const char *token_names[] = {
+  "UNKNOWN",
   "END_OF_FILE",
   "BEGIN", 
   "END", 
-  "PROC", 
   "SKIP", 
   "READ", 
   "WRITE", 
@@ -57,8 +58,8 @@ static const char *token_names[] = {
   "MULTIPLY",                     
   "DIVIDE",                       
   "MODULO",                       
-  "GUARD_SEPARATOR",              
   "ASSIGN",                       
+  "GUARD_SEPARATOR",                
   "GUARD_POINT",                  
   "RIGHT_PAREN",                  
   "RIGHT_BRACKET",                
@@ -66,7 +67,57 @@ static const char *token_names[] = {
   "ARRAY", 
   "BOOLEAN", 
   "CONST",
-  "INTEGER" 
+  "INTEGER",
+  "PROC", 
+  "NUMBER"
+};
+
+/* --------------------------------------------------------------------*/
+
+static const char *friendly_names[] = {
+  "UNKNOWN",
+  "EOF",
+  "begin", 
+  "end",   
+  "skip", 
+  "read", 
+  "write", 
+  "call", 
+  "if",
+  "do", 
+  "fi", 
+  "od", 
+  ";",                    
+  ",",                        
+  ".",                       
+  "false", 
+  "true",
+  "identifier",
+  "(",                   
+  "[",                 
+  "~",
+  "+",
+  "-",                        
+  "|",                   
+  "&",                  
+  "=",                        
+  ">",                 
+  "<",                    
+  "*",                     
+  "/",                       
+  "\\",                       
+  ":=",
+  "[]",              
+  "->",                  
+  ")",                  
+  "]",
+  "comment",                      
+  "array", 
+  "Boolean", 
+  "const",
+  "integer",
+  "proc", 
+  "number"
 };
 
 /* --------------------------------------------------------------------*/
@@ -99,6 +150,17 @@ std::string token::value () const {
 
 /* --------------------------------------------------------------------*/
 
-std::string token::token_name ( token_code c ) {
-  return string ( token_names[c] );
+const char* token::name ( token_code c ) {
+  assert ( c >= FIRST_TOKEN && c <= LAST_TOKEN );
+  return token_names[c];
+}
+
+/* --------------------------------------------------------------------*/
+
+#include <iostream>
+using std::cout;
+
+const char* token::friendly_name ( token_code c ) {
+  assert ( c >= FIRST_TOKEN && c <= LAST_TOKEN );
+  return friendly_names[c];
 }

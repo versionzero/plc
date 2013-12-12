@@ -11,8 +11,11 @@
 
 #include "scanner.h"
 #include "misc.h"
-#include <stdexcept>
-#include <string>
+
+
+#include <iostream>
+using std::cout;
+
 
 /*----------------------------------------------------------------------
   Namespace Inclusions
@@ -26,10 +29,14 @@ using std::runtime_error;
   Constants
 ----------------------------------------------------------------------*/
 
+/* --- all the symbols recognized by the PL language as 'letters'
+   for identifiers --- */
+static const int extra_letters[] = { '_' };
+
 /* --- all the symbols recognized by the PL language --- */
 static const int symbols[] = { '.', ',', ';', '[', ']', '&', '|', '~', 
 				'<', '=', '>', '+', '-', '*', '/', '\\', 
-			       '(', ')', '$' };
+			       '(', ')', ':', '$' };
 
 /* --- all "whitespace" characters --- */
 static const int wschars[] = { ' ', '\t', '\n' };
@@ -39,41 +46,12 @@ static const int wschars[] = { ' ', '\t', '\n' };
 ----------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-  Exceptions
-----------------------------------------------------------------------*/
-
-scanner::scanner_error::scanner_error ( string const & s )
-  : _msg ( s ) {
-}
-
-/* ------------------------------------------------------------------ */
-
-scanner::scanner_error::scanner_error () {}
-
-/* ------------------------------------------------------------------ */
-
-scanner::scanner_error::~scanner_error () throw () {}
-
-/* ------------------------------------------------------------------ */
-
-const char* scanner::scanner_error::what () const throw () {
-  return _msg.c_str ();
-}
-
-/* ------------------------------------------------------------------ */
-
-scanner::unknown_symbol::unknown_symbol ( char c ) {
-  /* -- formating messages using the STL is a royal pain */
-  string s = "unknown symbol '"; s += c; s += "'"; _msg = s;
-}
-
-/*----------------------------------------------------------------------
   Main Methods
 ----------------------------------------------------------------------*/
 
 scanner::scanner ( ifstream & s, symboltbl & t )
-  : _fin ( s ), _table ( t ), 
-    _cpos ( 0 ), _cline ( 1 ) {
+  : _fin ( s ), _symbols ( t ), 
+    _column ( 0 ), _line ( 1 ) {
   unsigned int i;
   for ( i = 0; i < 128; ++i ) {
     _char_map[i] = C_ERROR;
@@ -84,8 +62,11 @@ scanner::scanner ( ifstream & s, symboltbl & t )
   for ( i = 'A'; i <= 'Z'; ++i ) {
     _char_map[i] = C_LETTER;
   }
+  for ( i = 0; i < count_of ( extra_letters ); ++i ) {
+    _char_map[extra_letters[i]] = C_LETTER;
+  }  
   for ( i = '0'; i <= '9'; ++i ) {
-    _char_map[i] = C_NUMERAL;
+    _char_map[i] = C_DIGIT;
   }
   for ( i = 0; i < count_of ( symbols ); ++i ) {
     _char_map[symbols[i]] = C_SYMBOL;
@@ -105,24 +86,24 @@ bool scanner::iswhite ( int c ) const {  /* --- returns true if c is a */
 
 bool scanner::iswordchar ( int c ) const { /* --- return true if character */
   return ( C_LETTER == _char_map[c] || /* is a valid word character */
-	   C_NUMERAL == _char_map[c] ||
+	   C_DIGIT == _char_map[c] ||
 	   '_' == _char_map[c] );
 }
 
 /* --------------------------------------------------------------------*/
 
 bool scanner::isnumeral ( int c ) const { /* --- return true if a number */
-  return ( C_NUMERAL == _char_map[c] );
+  return ( C_DIGIT == _char_map[c] );
 }
 
 /* --------------------------------------------------------------------*/
 
 void scanner::get ( char & c ) { /* --- get the next character from */
   _fin.get ( c );                /* the input stream; incrementing the */
-  _cpos++;                       /* location and line counter as we go */
+  _column++;                     /* location and line counter as we go */
   if ( '\n' == c ) {
-    _cline++;
-    _cpos = 0;
+    _line++;
+    _column = 0;
   }
 }
 
@@ -130,9 +111,9 @@ void scanner::get ( char & c ) { /* --- get the next character from */
 
 void scanner::putback ( char c ) { /* --- put the last character back into */
   _fin.putback ( c );              /* the input stream; decrementing the */
-  _cpos--;                         /* location and line counter as we go */
+  _column--;                       /* location and line counter as we go */
   if ( '\n' == c ) {
-    _cline--;
+    _line--;
   }
 }
 
@@ -159,12 +140,13 @@ void scanner::scan_word () {
   while ( iswordchar ( peek () ) ) { 
     get ( c ); 
     s += c;
-  }  
-  if ( !_table.exists ( s ) ) { /* if not in symbol table, then it's */
-    _ctoken = token ( IDENTIFIER, s ); /* an identifier, so create a */
-    _table.insert ( s, _ctoken );      /* new entry in the symbol table */
+  }
+  symboltbl::iterator it = _symbols.find ( s );
+    if ( it == _symbols.end () ) {    /* if not in symbol table, then */
+    _token = token ( IDENTIFIER, s ); /* it's an identifier, so create a */
+    _symbols.insert ( s, _token );    /* new entry in the symbol table */
   } else {
-    _ctoken = _table.get ( s );
+    _token = it->second;
   }
 }
 
@@ -177,7 +159,7 @@ void scanner::scan_numeral () {
     get ( c ); 
     s += c;
   }  
-  _ctoken = token ( INTEGER, s );
+  _token = token ( NUMBER, s );
 }
 
 /* --------------------------------------------------------------------*/
@@ -218,6 +200,24 @@ void scanner::scan_symbol () {
   case '\\': code = DIVIDE;        break;
   case '(':  code = LEFT_PAREN;    break;
   case ')':  code = RIGHT_PAREN;   break;
+  case ':':    
+    code = UNKNOWN;             /* no ':' symbol in PL ... */      
+    if ( '=' == peek () ) {     /* := */
+      s += ':';
+      code = ASSIGN;
+      get ( c );                /* eat next char */      
+    } break;
+  default:
+    /* ERROR -- can't get here, as we catch most unknown symbols before
+                we enter this procedure */
+    throw runtime_error ( "unreachable case in scanner.cc" );
+    break;
+  }  
+  /* --- finally, create the token object */
+  _token = token ( code, s += c );
+}
+
+/* -- see next_token 
   case '$':  
     s += c;
     code = COMMENT;    
@@ -227,56 +227,47 @@ void scanner::scan_symbol () {
     }
     c = ' ';
     break;
-  case ':':
-    if ( '=' == peek () ) {     /* := */
-      s += ':';
-      code = ASSIGN;
-      get ( c );                /* eat next char */      
-    } else {
-      /* ERROR -- no : symbol in PL, bail */
-      throw scanner::unknown_symbol ( c );
-    }
-    break;
-  default:
-    /* ERROR -- can't get here, as we catch most unknown symbols before
-                we enter this procedure */
-    throw runtime_error ( "unreachable case in scanner.cc" );
-    break;
-  }  
-  /* --- finally, create the token object */
-  _ctoken = token ( code, s += c );
-}
+*/
 
 /* --------------------------------------------------------------------*/
 
-token const & scanner::next_token () { /* --- return the next token */
-  string s;
+/* --- return the next token */
+token const & scanner::next_token () throw ( runtime_error ) { 
+  char d; string s;
   skipws ();                    /* -- skip all white-space, then based on */  
   int c = peek ();              /* the first character we decide how to */
-  if ( EOF != c ) {             /* continue scanning from here */
+  switch ( c ) {                /* continue scanning from here */
+  case EOF:    
+    _token = eof_token;         /* -- looks like we are done, let the */
+    break;                      /* higher level processors know */
+  case '$':    
+    while ( '\n' != peek () ) { /* -- we treat comments as white-space */
+      get ( d ); }              /* and pass it by, then we look for the */ 
+    return next_token ();       /* next token in the input stream */
+    break;
+  default:
     switch ( _char_map[c] ) {     
-    case C_LETTER:  scan_word ();    break; 
-    case C_NUMERAL: scan_numeral (); break;
-    case C_SYMBOL:  scan_symbol ();  break;
+    case C_LETTER: scan_word ();    break; 
+    case C_DIGIT:  scan_numeral (); break;
+    case C_SYMBOL: scan_symbol ();  break;
     default: 
-      throw scanner::unknown_symbol ( c ); 
+      _token = token ( UNKNOWN, s += c );
+      get ( d );                /* consume the unknown character */
       break;
     } 
-  } else {
-    _ctoken = eof_token; 
   }
-  return _ctoken;               /* finally, return the token */
+  return _token;                /* finally, return the token */
 }
 
 /* --------------------------------------------------------------------*/
 
 int scanner::line () const {
-  return _cline;
+  return _line;
 }
 
 /* --------------------------------------------------------------------*/
 
 int scanner::column () const {
-  return _cpos;
+  return _column;
 }
 

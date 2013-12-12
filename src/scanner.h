@@ -11,7 +11,7 @@
 #include "symboltbl.h"
 #include "token.h"
 #include "error.h"
-#include <exception>
+#include <stdexcept>
 #include <fstream>
 #include <string>
 
@@ -28,7 +28,7 @@ class symboltbl;
 
 enum character_code {
   C_LETTER,
-  C_NUMERAL,
+  C_DIGIT,
   C_SYMBOL,
   C_WS,
   C_ERROR
@@ -43,11 +43,11 @@ class scanner {
 private:
   
   std::ifstream & _fin;         /* input stream reference */
-  symboltbl &     _table;       /* main symbol table */
-  int             _cpos;        /* current column number */
-  int             _cline;       /* current line number */
+  symboltbl &     _symbols;     /* main symbol table */
   character_code  _char_map[256];/* character characterization map */
-  token           _ctoken;      /* current token */
+  int             _column;      /* current column number */
+  int             _line;        /* current line number */  
+  token           _token;       /* current token */
   
   bool iswhite ( int ) const;
   bool iswordchar ( int ) const;
@@ -65,29 +65,10 @@ private:
 public:
 
   scanner ( std::ifstream &, symboltbl & );  
-  token const & next_token ();  
+  token const & next_token () throw ( std::runtime_error );  
   int line () const;
   int column () const;   
-
-  /* -- base for scanner exceptions */
-  class scanner_error : public std::exception {
-  protected:
-    std::string _msg;
-  public:
-    scanner_error ();
-    /* -- takes a character string describing the error.  */
-    explicit scanner_error ( std::string const & );    
-    virtual ~scanner_error () throw ();
-    /* -- returns a C-style character string describing the general cause of
-          the current error (possibly the same string passed to the ctor). */
-    virtual const char* what () const throw ();
-  };
   
-  /*-- thrown when we don't recognize a symbol in the input stream */
-  struct unknown_symbol : public scanner_error {    
-    explicit unknown_symbol ( char );    
-  };
-
 };
 
 #endif

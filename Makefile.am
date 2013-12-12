@@ -1,2 +1,2 @@
 EXTRA_DIST = autogen.sh
-SUBDIRS = doc src m4
+SUBDIRS = doc m4 src tests

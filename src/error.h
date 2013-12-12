@@ -26,7 +26,8 @@ enum error_code {
   E_OPTARG  = -7,               /* missing option argument */
   E_ARGCNT  = -8,               /* too few/many arguments */
   E_UNKSYB  = -9,               /* unknown symbol */
-  E_UNKNOWN = -10               /* unknown error */
+  E_SYNTAX  = -10,              /* syntax error */
+  E_UNKNOWN = -11               /* unknown error */
 };
 
 /*----------------------------------------------------------------------

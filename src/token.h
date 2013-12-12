@@ -16,12 +16,14 @@
 
 enum token_code {
 
-  NONE = -1,
+  FIRST_TOKEN = -1,
+  
+  NONE = FIRST_TOKEN,
+  UNKNOWN,
   END_OF_FILE,
   
   BEGIN, 
   END, 
-  PROC, 
   SKIP, 
   READ, 
   WRITE, 
@@ -50,21 +52,17 @@ enum token_code {
   MINUS,                        // -
   LOGICAL_OR,                   // |
   LOGICAL_AND,                  // &
-  EQUAL,                        // =
+  EQUAL,                        // =   (25)
   GREATER_THAN,                 // >
   LESS_THAN,                    // <
   MULTIPLY,                     // *
   DIVIDE,                       // /
   MODULO,                       // '\'
-  GUARD_SEPARATOR,              // []  
-  
-  ASSIGN,                       // :=  
-  LAST_ASSIGN = ASSIGN,
+  ASSIGN,                       // :=    
 
+  GUARD_SEPARATOR,              // []    
   GUARD_POINT,                  // ->
-  LAST_BINARY_OP = GUARD_POINT,
-  LAST_OP = GUARD_POINT,
-  
+    
   RIGHT_PAREN,                  // )
   RIGHT_BRACKET,                // ]
 
@@ -73,8 +71,11 @@ enum token_code {
   ARRAY, 
   BOOLEAN, 
   CONST,
-  INTEGER 
+  INTEGER,
+  PROC, 
+  NUMBER,
 
+  LAST_TOKEN
 };
 
 /*----------------------------------------------------------------------
@@ -94,7 +95,8 @@ class token {
   operator token_code () const; 
   std::string value () const;
 
-  static std::string token_name ( token_code );
+  static const char* name ( token_code );
+  static const char* friendly_name ( token_code );
   
 };
 
