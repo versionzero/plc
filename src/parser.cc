@@ -11,6 +11,7 @@
 
 #include "error.h"
 #include "parser.h"
+#include <cassert>
 #include <cstdarg>
 #include <iostream>
 #include <string>
@@ -433,7 +434,7 @@ BEGIN_NONTERMINAL_HANDLER_X
 	   SYMBOLS ( ARRAY ) + FIRST ( VARIABLE_LIST ) + stop ); 
   /* "array" VariableList ... */    
   kind = kind::variable;
-  if ( array = ( ARRAY == _token ) ) {
+  if ( ( array = ( ARRAY == _token ) ) ) {
     kind = kind::array;
     expect ( ARRAY, FIRST ( VARIABLE_LIST ) 
 	     + SYMBOLS ( LEFT_BRACKET, RIGHT_BRACKET ) 
@@ -1010,7 +1011,7 @@ BEGIN_NONTERMINAL_HANDLER ( parser::constant_type, constant )  {
        identifier we are given */    
     _token.value ( name );
     t = find ( name );
-    if ( t != kind::constant ) {
+    if ( t.kind () != kind::constant ) {
       type = t.type ();
       t.value ( x );
     } else {

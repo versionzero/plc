@@ -80,8 +80,11 @@ bool scanner::iswhite ( int c ) const {  /* --- returns true if c is a */
 
 bool scanner::iswordchar ( int c ) const { /* --- return true if character */
   return ( character::letter == _char_map[c] || /* is a valid word character */
-	   character::digit == _char_map[c] ||
-	   '_' == _char_map[c] );
+	   character::digit == _char_map[c] );
+           /*
+             the '_' is alredy considered a letter
+           || '_' == _char_map[c] );
+           */
 }
 
 /* --------------------------------------------------------------------*/
@@ -162,6 +165,7 @@ void scanner::scan_symbol () {
   char c;
   string s;
   token_code code;
+  code = UNKNOWN;
   get ( c );  
   switch ( c ) {
   case '.': code = PERIOD;         break;
@@ -204,7 +208,7 @@ void scanner::scan_symbol () {
   default:
     /* ERROR -- can't get here, as we catch unknown symbols before
                 we enter this procedure */
-    assert ( 0 );
+    //assert ( 0 );
     break;
   }  
   /* --- finally, create the token object */
