@@ -12,6 +12,7 @@
 #include "scanner.h"
 #include "misc.h"
 #include <cstdlib>
+#include <cassert>
 
 /*----------------------------------------------------------------------
   Namespace Inclusions
@@ -81,7 +82,7 @@ bool scanner::iswhite ( int c ) const {  /* --- returns true if c is a */
 bool scanner::iswordchar ( int c ) const { /* --- return true if character */
   return ( character::letter == _char_map[c] || /* is a valid word character */
 	   character::digit == _char_map[c] ||
-	   '_' == _char_map[c] );
+	   (character::code) '_' == _char_map[c] );
 }
 
 /* --------------------------------------------------------------------*/
@@ -202,6 +203,7 @@ void scanner::scan_symbol () {
       get ( c );                /* eat next char */      
     } break;
   default:
+    code = UNKNOWN;
     /* ERROR -- can't get here, as we catch unknown symbols before
                 we enter this procedure */
     assert ( 0 );

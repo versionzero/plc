@@ -42,7 +42,7 @@ using std::string;
 
 /* --- all the reserved words in PL programming language */
 static struct {
-  char      *word;
+  const char *word;
   token_code code;
 } keywords[] = { 
   { "begin",   BEGIN },

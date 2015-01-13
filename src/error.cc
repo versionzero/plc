@@ -43,6 +43,7 @@ static const char *_fatal_messages[] = {
   /*  -6 */  "no destination file supplied\n",
   /*  -7 */  "unknown option -%c\n",
   /*  -8 */  "wrong number of arguments\n",
+  /*  -9 */  "unknown error\n",
 };  
 
 static const char *_input_messages[] = {
@@ -57,7 +58,8 @@ static const char *_input_messages[] = {
   /*  -8 */  "`%s' is not a procedure\n",
   /*  -9 */  "unbalanced assignment statement; %s is heavy\n",
   /* -10 */  "boolean expression expected\n",
-  /* -11 */  "integer expression expected\n"
+  /* -11 */  "integer expression expected\n",
+  /* -12 */  "unknown error\n",
 };
 
 /*----------------------------------------------------------------------
