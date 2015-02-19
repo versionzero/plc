@@ -94,7 +94,7 @@ void compiler::error (error::input::code code, ...) const
   if (code < 0) {             /* if to report an error, */
     msg = _input_messages[-code]; /* get the error message */
     if (!msg) { msg = _input_messages[-error::input::unknown]; }
-    fprintf (stderr, "%s:%3d: error: ", _fn_in, _parser.line ());
+    fprintf (stderr, "%s:%d: error: ", _fn_in, _parser.line ());
     va_start (args, code);    /* get variable arguments */
     vfprintf (stderr, msg, args); /* print error message */   
     va_end (args);            /* end argument evaluation */ 
