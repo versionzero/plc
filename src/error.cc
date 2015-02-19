@@ -59,7 +59,8 @@ static const char *_input_messages[] = {
   /*  -9 */  "unbalanced assignment statement; %s is heavy\n",
   /* -10 */  "boolean expression expected\n",
   /* -11 */  "integer expression expected\n",
-  /* -12 */  "unknown error\n",
+  /* -12 */  "did you mean '%s'?\n",  
+  /* -13 */  "unknown error\n",
 };
 
 /*----------------------------------------------------------------------

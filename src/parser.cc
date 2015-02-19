@@ -276,7 +276,69 @@ token & parser::find (string const &name) {
   } 
   token undefined (IDENTIFIER, name);
   error (error::input::undefined_symbol, undefined);
+  suggest (name);
   return define (name, kind::undefined, type::universal);
+}
+
+/* --------------------------------------------------------------------*/
+
+std::string soundex(const std::string & input, const int n)
+{
+  static char lookup[] = {
+    '0', /* A */ '1', '2', '3', '0', '1', '2', '0', '0', '2', '2', '4',
+    '5', '5', '0', '1', '0', '6', '2', '3', '0', '1', '0', '2', '0', '2'
+  };
+  
+  // keep the first character intact
+  std::string result = input.substr(0, 1);
+
+  // compute value for each character thereafter
+  for (int i = 1; i < input.length(); i++) {
+    // skip non-alpha characters
+    if (!isalpha(input[i])) {
+      continue;
+    }
+
+    // uppercase the input value
+    const char lookupInput = islower(input[i]) ? toupper(input[i]) : input[i];
+    // lookup it's value
+    const char *lookupVal = &lookup[lookupInput-'A'];
+
+    // make sure this isn't a dupe value
+    if (result.find(lookupVal, 0) != 0 ) {
+      result.append(lookupVal);
+    }
+  }
+
+  // make sure we could actually encode something
+  if (result.length() >= n) {
+    return result.substr(0, n - 1);
+  }
+
+  // In cases of empty strings (or strings with no encodable
+  // characters), return Z000
+  return "Z000";
+}
+
+std::string soundex(const std::string &input)
+{
+  return soundex(input, 10);
+}
+
+/* --------------------------------------------------------------------*/
+
+void parser::suggest(std::string const & name)
+{
+  string s = soundex(name), t;
+  symboltbl::iterator it = _symbols.begin();
+  while (it != _symbols.end()) {
+    t = soundex(it->first);
+    if (s == t) {
+      token undefined (IDENTIFIER, it->first);
+      error (error::input::did_you_mean, undefined);
+      break;
+    }
+  }
 }
 
 /* --------------------------------------------------------------------*/

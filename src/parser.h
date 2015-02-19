@@ -56,6 +56,8 @@ private:
   token& define (std::string const&, kind::code, type::code = type::universal,
 		  int = 0, int = 0, int = 0, int = 0);
   token& find (std::string const&);
+
+  void suggest(std::string const&);
     
   void error (error::input::code) const;
   void error (error::input::code, token const&) const;
