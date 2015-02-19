@@ -51,13 +51,13 @@ private:
                   _line;        /* current line number */  
   token           _token;       /* current token */
   
-  bool iswhite ( int ) const;
-  bool iswordchar ( int ) const;
-  bool isnumeral ( int ) const;
+  bool iswhite (int) const;
+  bool iswordchar (int) const;
+  bool isnumeral (int) const;
   
   void skipws ();
-  void get ( char & );
-  void putback ( char );
+  void get (char &);
+  void putback (char);
   char peek ();
 
   void scan_word ();
@@ -66,7 +66,7 @@ private:
 
 public:
 
-  scanner ( std::ifstream & );  
+  scanner (std::ifstream &);  
   token const & next_token ();
   unsigned int line () const;
   unsigned int column () const;   

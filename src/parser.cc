@@ -11,6 +11,7 @@
 
 #include "error.h"
 #include "parser.h"
+#include <cassert>
 #include <cstdarg>
 #include <cassert>
 #include <iostream>
@@ -38,12 +39,12 @@ using std::vector;
 
 /* -- quick macro to speed up the process of creating stop sets:
    
-   SYMBOLS ( COMMA, END, PLUS ) 
+   SYMBOLS (COMMA, END, PLUS) 
 
    Will return an STL set containing those token ids.  These procedures will 
    also eliminate duplicates as well, thus:
 
-   SYMBOLS ( COMMA, END, PLUS, PLUS ) = { COMMA, END, PLUS }
+   SYMBOLS (COMMA, END, PLUS, PLUS) = { COMMA, END, PLUS }
    
  */
 #define SYMBOLS(...) make_set(__VA_ARGS__)
@@ -68,25 +69,25 @@ static int __indent = 0;
 #define BEGIN_NONTERMINAL_HANDLER(r,x)				\
   r parser::x NONTERMINAL_PARAMS {				\
     char const *__fn = #x;					\
-    for ( int __i = 0; __i < __indent; ++__i ) {		\
+    for (int __i = 0; __i < __indent; ++__i) {		\
       cout << ' '; }						\
     cout << "<" << __fn  << ">" << endl;			\
     __indent++;
 #define BEGIN_NONTERMINAL_HANDLER_X(r,x)			\
   r parser::x {							\
     char const *__fn = #x;					\
-    for ( int __i = 0; __i < __indent; ++__i ) {		\
+    for (int __i = 0; __i < __indent; ++__i) {		\
       cout << ' '; }						\
     cout << "<" << __fn  << ">" << endl;			\
     __indent++;
 #define END_NONTERMINAL_HANDLER				\
   __indent--;						\
-  for ( int __i = 0; __i < __indent; ++__i ) {		\
+  for (int __i = 0; __i < __indent; ++__i) {		\
     cout << ' '; }					\
   cout << "</" << __fn << ">" << endl; }		
 #define PREMATURE_END_NONTERMINAL_HANDLER {END_NONTERMINAL_HANDLER
 #define DEBUG_OUTPUT(x)						\
-  for ( int __i = 0; __i < __indent; ++__i ) {			\
+  for (int __i = 0; __i < __indent; ++__i) {			\
     cout << ' '; }						\
   cout << "<" << x << " />\n";
 #endif
@@ -177,20 +178,20 @@ int parser::_next_label = 1;
   Main Methods
 ----------------------------------------------------------------------*/
 
-parser::parser ( ifstream & s, symboltbl & t, error_interface & err,
-		 emitter_interface & emit )
-  : _emitter ( emit ), _errors ( err ), _scanner ( s ), _symbols ( t ), 
-    _null ( token::null ), _expected ( NONE ) {
+parser::parser (ifstream & s, symboltbl & t, error_interface & err,
+		 emitter_interface & emit)
+  : _emitter (emit), _errors (err), _scanner (s), _symbols (t), 
+    _null (token::null), _expected (NONE) {
   unsigned int i, j;
   /* Create the "first symbols" sets.  At this point using STL sets is a
      little excessive, as there will never be duplicates; however, as we 
      descend through the parse tree and use these to build follow sets 
      and stop sets, the fact that sets forbid duplicates will become more 
      important. */
-  for ( i = 0; i < LAST_TOKEN; ++i ) {
-    for ( j = 0; NONE != first_symbols[i][j] && j < 8; ++j ) {
-      _first_symbols[i].insert ( 
-	  static_cast<token_code> ( first_symbols[i][j] ) );
+  for (i = 0; i < LAST_TOKEN; ++i) {
+    for (j = 0; NONE != first_symbols[i][j] && j < 8; ++j) {
+      _first_symbols[i].insert (
+	  static_cast<token_code> (first_symbols[i][j]));
     }
   }
 }
@@ -198,7 +199,7 @@ parser::parser ( ifstream & s, symboltbl & t, error_interface & err,
 /* --------------------------------------------------------------------*/
 
 token_code parser::move () {
-  return ( _token = _scanner.next_token () );
+  return (_token = _scanner.next_token ());
 }
 
 /*--------------------------------------------------------------------*/
@@ -209,50 +210,50 @@ int parser::new_label () {
 
 /* --------------------------------------------------------------------*/
 
-void parser::expect ( token_code c, token_set const &stop ) {
+void parser::expect (token_code c, token_set const &stop) {
   _expected = c;                /* -- set which symbol we expect */
-  if ( _expected == _token ) {  /* ensure that we see it and */  
+  if (_expected == _token) {  /* ensure that we see it and */  
     move ();                    /* move on */
   } else {                      /* -- on failure, signal a syntax */
-    syntax_error ( stop ); }    /* error to the user */
+    syntax_error (stop); }    /* error to the user */
   _expected = NONE;             /* -- reset the expected symbol and */
-  syntax_check ( stop );        /* ensure that we are in a sane state */
+  syntax_check (stop);        /* ensure that we are in a sane state */
 }
 
 /* --------------------------------------------------------------------*/
 
-void parser::expect ( string &name, token_set const &stop ) {
+void parser::expect (string &name, token_set const &stop) {
   _expected = IDENTIFIER;       /* -- we always expect an ID */
-  if ( _expected == _token ) {  /* ensure that we see it, */  
-    _token.value ( name );      /* record the name and */
+  if (_expected == _token) {  /* ensure that we see it, */  
+    _token.value (name);      /* record the name and */
     move ();                    /* move on */
   } else {                      /* -- on failure, signal a syntax */
-    syntax_error ( stop ); }    /* error to the user */
+    syntax_error (stop); }    /* error to the user */
   _expected = NONE;             /* -- reset the expected symbol and */
-  syntax_check ( stop );        /* ensure that we are in a sane state */
+  syntax_check (stop);        /* ensure that we are in a sane state */
 }
 
 /* --------------------------------------------------------------------*/
 
-token & parser::define ( string const & name, kind::code kind, 
+token & parser::define (string const & name, kind::code kind, 
 			 type::code type, int value, int size, 
-			 int displ, int start ) {
-  if ( !name.empty () ) { 
+			 int displ, int start) {
+  if (!name.empty ()) { 
     /* -- we are only concerned if the ID is defined withing the current
        scope (i.e. the *top*): if one exists, then the creation of a new one
        should *not* be allowed */
-    symboltbl::iterator it = _symbols.find_top ( name );
-    if ( it != _symbols.end () ) {
-      error ( error::input::duplicate, it->second );
+    symboltbl::iterator it = _symbols.find_top (name);
+    if (it != _symbols.end ()) {
+      error (error::input::duplicate, it->second);
       return it->second;    
     } else {
 
       /* cout << "# " << name << ", level: " << _symbols.level () << "\n"; */
 
-      token tok ( IDENTIFIER, kind, type, name, value, size,
-		  _symbols.level (), displ, start );
-      pair<symboltbl::iterator, bool> p = _symbols.insert ( name, tok );
-      if ( p.second ) { 
+      token tok (IDENTIFIER, kind, type, name, value, size,
+		  _symbols.level (), displ, start);
+      pair<symboltbl::iterator, bool> p = _symbols.insert (name, tok);
+      if (p.second) { 
 	return p.first->second; 
       }
     }
@@ -268,30 +269,92 @@ token & parser::define ( string const & name, kind::code kind,
    anything they search for -- excluding the empty string -- will always
    be found in the symbol table.  it's only a mater of whether it will
    issue a runtime error or not */
-token & parser::find ( string const &name ) {
-  symboltbl::iterator it = _symbols.find ( name );
-  if ( it != _symbols.end () ) { 
+token & parser::find (string const &name) {
+  symboltbl::iterator it = _symbols.find (name);
+  if (it != _symbols.end ()) { 
     return it->second; 
   } 
-  token undefined ( IDENTIFIER, name );
-  error ( error::input::undefined_symbol, undefined );
-  return define ( name, kind::undefined, type::universal );
+  token undefined (IDENTIFIER, name);
+  error (error::input::undefined_symbol, undefined);
+  suggest (name);
+  return define (name, kind::undefined, type::universal);
 }
 
 /* --------------------------------------------------------------------*/
 
-void parser::syntax_check ( token_set const & stop ) {
-  if ( !stop.count ( _token ) ) {
-    syntax_error ( stop );
+std::string soundex(const std::string & input, const int n)
+{
+  static char lookup[] = {
+    '0', /* A */ '1', '2', '3', '0', '1', '2', '0', '0', '2', '2', '4',
+    '5', '5', '0', '1', '0', '6', '2', '3', '0', '1', '0', '2', '0', '2'
+  };
+  
+  // keep the first character intact
+  std::string result = input.substr(0, 1);
+
+  // compute value for each character thereafter
+  for (int i = 1; i < input.length(); i++) {
+    // skip non-alpha characters
+    if (!isalpha(input[i])) {
+      continue;
+    }
+
+    // uppercase the input value
+    const char lookupInput = islower(input[i]) ? toupper(input[i]) : input[i];
+    // lookup it's value
+    const char *lookupVal = &lookup[lookupInput-'A'];
+
+    // make sure this isn't a dupe value
+    if (result.find(lookupVal, 0) != 0 ) {
+      result.append(lookupVal);
+    }
+  }
+
+  // make sure we could actually encode something
+  if (result.length() >= n) {
+    return result.substr(0, n - 1);
+  }
+
+  // In cases of empty strings (or strings with no encodable
+  // characters), return Z000
+  return "Z000";
+}
+
+std::string soundex(const std::string &input)
+{
+  return soundex(input, 10);
+}
+
+/* --------------------------------------------------------------------*/
+
+void parser::suggest(std::string const & name)
+{
+  string s = soundex(name), t;
+  symboltbl::iterator it = _symbols.begin();
+  while (it != _symbols.end()) {
+    t = soundex(it->first);
+    if (s == t) {
+      token undefined (IDENTIFIER, it->first);
+      error (error::input::did_you_mean, undefined);
+      break;
+    }
   }
 }
 
 /* --------------------------------------------------------------------*/
 
-void parser::type_check ( type::code & t1, type::code t2 ) {
-  if ( t1 != t2 ) {
-    if ( t1 && t2 ) { /* != type::univeral */
-      error ( error::input::type_mismatch );
+void parser::syntax_check (token_set const & stop) {
+  if (!stop.count (_token)) {
+    syntax_error (stop);
+  }
+}
+
+/* --------------------------------------------------------------------*/
+
+void parser::type_check (type::code & t1, type::code t2) {
+  if (t1 != t2) {
+    if (t1 && t2) { /* != type::univeral */
+      error (error::input::type_mismatch);
     }
     t1 = type::universal;
   }
@@ -299,44 +362,44 @@ void parser::type_check ( type::code & t1, type::code t2 ) {
 
 /* --------------------------------------------------------------------*/
 
-void parser::error ( error::input::code c ) const {
-  _errors.error ( c );  
+void parser::error (error::input::code c) const {
+  _errors.error (c);  
 }
 
 /* --------------------------------------------------------------------*/
 
-void parser::error ( error::input::code c, token const & t ) const {
+void parser::error (error::input::code c, token const & t) const {
   string s;
-  t.value ( s );
-  _errors.error ( c, s.c_str () );  
+  t.value (s);
+  _errors.error (c, s.c_str ());  
 }
 
 /* --------------------------------------------------------------------*/
 
-void parser::error ( error::input::code c, token const & t1,
-		     token const & t2 ) const {
+void parser::error (error::input::code c, token const & t1,
+		     token const & t2) const {
   string s1, s2;
-  t1.value ( s1 ); t2.value ( s2 );
-  _errors.error ( c, s1.c_str (), s2.c_str () );
+  t1.value (s1); t2.value (s2);
+  _errors.error (c, s1.c_str (), s2.c_str ());
 }
 
 /* --------------------------------------------------------------------*/
 
-void parser::syntax_error ( token_set const & stop ) {
+void parser::syntax_error (token_set const & stop) {
   /* --- issue the appropriate error message: */  
-  if ( UNKNOWN == _token ) {    /* if we don't recognize the symbol: */
-    error ( error::input::unrecognized, _token );
+  if (UNKNOWN == _token) {    /* if we don't recognize the symbol: */
+    error (error::input::unrecognized, _token);
   } else {                      /* if we do recognize the symbol: */    
-    if ( NONE == _expected ) {  /* a) we may not have been expecting it */
-      error ( error::input::unexpected, _token );    
+    if (NONE == _expected) {  /* a) we may not have been expecting it */
+      error (error::input::unexpected, _token);    
     } else {                    /* or (b) we may have been expecting 
 				   something else */
-      token expected ( _expected, token::friendly_name ( _expected ) );
-      error ( error::input::expected_before, expected, _token );
+      token expected (_expected, token::friendly_name (_expected));
+      error (error::input::expected_before, expected, _token);
     }
   }
   /* --- attempt to return the parser to a sane state --- */
-  while ( !stop.count ( _token ) ) { 
+  while (!stop.count (_token)) { 
     move ();                    /* -- find the next recognized symbol */
   }
 }
@@ -344,31 +407,31 @@ void parser::syntax_error ( token_set const & stop ) {
 /* --------------------------------------------------------------------*/
 
 /* Program = Block "." . */
-BEGIN_NONTERMINAL_HANDLER ( void, program ) {  
+BEGIN_NONTERMINAL_HANDLER (void, program) {  
   int begin  = new_label (), 
     variable = new_label ();
   _symbols.push ();             /* start a new scope */
-  _emitter.program ( variable, begin );
-  block ( begin, variable, SYMBOLS ( PERIOD ) + stop );
+  _emitter.program (variable, begin);
+  block (begin, variable, SYMBOLS (PERIOD) + stop);
   _emitter.end_program ();
   _symbols.pop ();              /* end the scope */
-  expect ( PERIOD, stop );
+  expect (PERIOD, stop);
 } END_NONTERMINAL_HANDLER;
 
 /* --------------------------------------------------------------------*/
 
 /* Block = "begin" DefinitionPart StatementPart "end" .  */  
-BEGIN_NONTERMINAL_HANDLER_X ( void, block ( int begin, int variable, 
-					    token_set const & stop ) )  {  
+BEGIN_NONTERMINAL_HANDLER_X (void, block (int begin, int variable, 
+					    token_set const & stop))  {  
   int count, displacement = 3;
-  expect ( BEGIN, FIRST ( DEFINITION_PART ) + FIRST ( STATEMENT_PART ) 
-	   + SYMBOLS ( END ) + stop );
-  count = definition_part ( displacement, FIRST ( STATEMENT_PART ) 
-			    + SYMBOLS ( END ) + stop );
-  _emitter.define_argument ( variable, count );
-  _emitter.define_address ( begin );
-  statement_part ( SYMBOLS ( END ) + stop );  
-  expect ( END, stop );
+  expect (BEGIN, FIRST (DEFINITION_PART) + FIRST (STATEMENT_PART) 
+	   + SYMBOLS (END) + stop);
+  count = definition_part (displacement, FIRST (STATEMENT_PART) 
+			    + SYMBOLS (END) + stop);
+  _emitter.define_argument (variable, count);
+  _emitter.define_address (begin);
+  statement_part (SYMBOLS (END) + stop);  
+  expect (END, stop);
 } END_NONTERMINAL_HANDLER;
 
 /* --------------------------------------------------------------------*/
@@ -377,29 +440,29 @@ BEGIN_NONTERMINAL_HANDLER_X ( void, block ( int begin, int variable,
 /* Definition = ConstantDefinition | VariableDefinition	\
    | ProcedureDefinition . */
 BEGIN_NONTERMINAL_HANDLER_X 
-( int, definition_part ( int &displacement, token_set const &stop ) ) {
+(int, definition_part (int &displacement, token_set const &stop)) {
   int variables = 0;
-  syntax_check ( FIRST ( DEFINITION_PART ) + stop );
-  token_set extra = SYMBOLS ( SEMICOLON ) + stop;
-  while ( _token >= BOOLEAN && _token <= PROC ) {
-    switch ( _token ) {
+  syntax_check (FIRST (DEFINITION_PART) + stop);
+  token_set extra = SYMBOLS (SEMICOLON) + stop;
+  while (_token >= BOOLEAN && _token <= PROC) {
+    switch (_token) {
     case CONST:    
-      constant_definition ( extra );
+      constant_definition (extra);
       break;
     case BOOLEAN:
     case INTEGER:
-      variables += variable_definition ( displacement, extra );
+      variables += variable_definition (displacement, extra);
       break;
     case PROC:
-      procedure_definition ( extra );
+      procedure_definition (extra);
       break;
     default:   
       /* --- for empty definitions -- also quiets the 'enumeration value
 	 'bla' not handled in switch' warnings */
       return variables;
     }
-    expect ( SEMICOLON, FIRST ( DEFINITION_PART ) + stop );
-    syntax_check ( FIRST ( DEFINITION_PART ) + stop );
+    expect (SEMICOLON, FIRST (DEFINITION_PART) + stop);
+    syntax_check (FIRST (DEFINITION_PART) + stop);
   }  
   PREMATURE_END_NONTERMINAL_HANDLER;
   return variables;
@@ -408,14 +471,14 @@ BEGIN_NONTERMINAL_HANDLER_X
 /* --------------------------------------------------------------------*/
 
 /* ConstantDefinition = "const" ConstantName "=" Constant . */
-BEGIN_NONTERMINAL_HANDLER ( void, constant_definition )  {    
+BEGIN_NONTERMINAL_HANDLER (void, constant_definition)  {    
   string name;
-  expect ( CONST, SYMBOLS ( IDENTIFIER ) + SYMBOLS ( EQUAL ) 
-	   + FIRST ( CONSTANT ) + stop );    
-  expect ( name, SYMBOLS ( EQUAL ) + FIRST ( CONSTANT ) + stop );
-  expect ( EQUAL, FIRST ( CONSTANT ) + stop );
-  parser::constant_type c = constant ( stop );
-  define ( name, kind::constant, c.second, c.first );  
+  expect (CONST, SYMBOLS (IDENTIFIER) + SYMBOLS (EQUAL) 
+	   + FIRST (CONSTANT) + stop);    
+  expect (name, SYMBOLS (EQUAL) + FIRST (CONSTANT) + stop);
+  expect (EQUAL, FIRST (CONSTANT) + stop);
+  parser::constant_type c = constant (stop);
+  define (name, kind::constant, c.second, c.first);  
 } END_NONTERMINAL_HANDLER;
 
 /* --------------------------------------------------------------------*/
@@ -424,52 +487,52 @@ BEGIN_NONTERMINAL_HANDLER ( void, constant_definition )  {
    | TypeSymbol "array" VariableList "[" Constant "]" . */
 /* TypeSymbol =  "integer" | "Boolean" . */
 BEGIN_NONTERMINAL_HANDLER_X 
-( int, variable_definition ( int &displacement, token_set const &stop ) ) {  
+(int, variable_definition (int &displacement, token_set const &stop)) {  
   bool array; string name; constant_type c;
   vector<string> variables; vector<string>::iterator it;
   kind::code kind; type::code type; int value = 0, size = 1; 
   /* TypeSymbol - type::code values based on token_code values */
-  type = ( BOOLEAN == _token ? type::boolean : type::integer );
-  expect ( static_cast<token_code> ( type ), 
-	   SYMBOLS ( ARRAY ) + FIRST ( VARIABLE_LIST ) + stop ); 
+  type = (BOOLEAN == _token ? type::boolean : type::integer);
+  expect (static_cast<token_code> (type), 
+	   SYMBOLS (ARRAY) + FIRST (VARIABLE_LIST) + stop); 
   /* "array" VariableList ... */    
   kind = kind::variable;
   if ( ( array = ( ARRAY == _token ) ) ) {
     kind = kind::array;
-    expect ( ARRAY, FIRST ( VARIABLE_LIST ) 
-	     + SYMBOLS ( LEFT_BRACKET, RIGHT_BRACKET ) 
-	     + FIRST ( CONSTANT ) + stop );
+    expect (ARRAY, FIRST (VARIABLE_LIST) 
+	     + SYMBOLS (LEFT_BRACKET, RIGHT_BRACKET) 
+	     + FIRST (CONSTANT) + stop);
   }  
   /* VariableList = VariableName { "," VariableName } . */
   do { 
-    if ( COMMA == _token ) {
-      expect ( COMMA, SYMBOLS ( IDENTIFIER ) + FIRST ( CONSTANT ) 
-	       + SYMBOLS ( LEFT_BRACKET, RIGHT_BRACKET ) + stop ); 
+    if (COMMA == _token) {
+      expect (COMMA, SYMBOLS (IDENTIFIER) + FIRST (CONSTANT) 
+	       + SYMBOLS (LEFT_BRACKET, RIGHT_BRACKET) + stop); 
     }
-    expect ( name, FIRST ( VARIABLE_LIST ) 
-	     + SYMBOLS ( COMMA, LEFT_BRACKET, RIGHT_BRACKET ) 
-	     + FIRST ( CONSTANT ) + stop );
-    variables.push_back ( name );
-  } while ( COMMA == _token );
+    expect (name, FIRST (VARIABLE_LIST) 
+	     + SYMBOLS (COMMA, LEFT_BRACKET, RIGHT_BRACKET) 
+	     + FIRST (CONSTANT) + stop);
+    variables.push_back (name);
+  } while (COMMA == _token);
   /* if this is an array we will find: ... "[" Constant "]" . */
-  if ( array ) {
-    expect ( LEFT_BRACKET, FIRST ( CONSTANT ) 
-	     + SYMBOLS ( RIGHT_BRACKET ) + stop );
-    c = constant ( SYMBOLS ( RIGHT_BRACKET ) + stop );
-    if ( type::integer != c.second && type::universal != c.second ) {
-      error ( error::input::integer );
+  if (array) {
+    expect (LEFT_BRACKET, FIRST (CONSTANT) 
+	     + SYMBOLS (RIGHT_BRACKET) + stop);
+    c = constant (SYMBOLS (RIGHT_BRACKET) + stop);
+    if (type::integer != c.second && type::universal != c.second) {
+      error (error::input::integer);
     } else {
       size = c.first;
     }    
-    expect ( RIGHT_BRACKET, stop );
+    expect (RIGHT_BRACKET, stop);
   }  
   /* finally, do the actual defining of the variables */
-  for ( it = variables.begin (); it != variables.end (); ++it ) {
+  for (it = variables.begin (); it != variables.end (); ++it) {
     /* cout << "# " << *it << ", kind: " << kind << ", type: " 
-       << token::friendly_name ( (token_code) type ) << ", value: " 
+       << token::friendly_name ((token_code) type) << ", value: " 
        << value << ", displ: " << displacement << "\n"; 
     */
-    define ( *it, kind, type, value, size, displacement );
+    define (*it, kind, type, value, size, displacement);
     displacement += size;
   }  
   PREMATURE_END_NONTERMINAL_HANDLER;
@@ -479,18 +542,18 @@ BEGIN_NONTERMINAL_HANDLER_X
 /* --------------------------------------------------------------------*/
 
 /* ProcedureDefinition = "proc" ProcedureName Block . */
-BEGIN_NONTERMINAL_HANDLER ( void, procedure_definition )  {  
+BEGIN_NONTERMINAL_HANDLER (void, procedure_definition)  {  
   string name;  
-  expect ( PROC, SYMBOLS ( IDENTIFIER ) + FIRST ( BLOCK ) + stop );  
-  expect ( name, FIRST ( BLOCK ) + stop );      
+  expect (PROC, SYMBOLS (IDENTIFIER) + FIRST (BLOCK) + stop);  
+  expect (name, FIRST (BLOCK) + stop);      
   int proc     = new_label (),
       variable = new_label (), 
       begin    = new_label (); 
-  define ( name, kind::procedure, type::universal, 0, 0, 0, proc );
+  define (name, kind::procedure, type::universal, 0, 0, 0, proc);
   _symbols.push ();             /* start a new scope */
-  _emitter.define_address ( proc ); /* record the procedure's address */
-  _emitter.procedure ( variable, begin );
-  block ( begin, variable, stop );
+  _emitter.define_address (proc); /* record the procedure's address */
+  _emitter.procedure (variable, begin);
+  block (begin, variable, stop);
   _emitter.end_procedure ();  
   _symbols.pop ();              /* end the scope */
 } END_NONTERMINAL_HANDLER;
@@ -508,73 +571,73 @@ BEGIN_NONTERMINAL_HANDLER ( void, procedure_definition )  {
 /* ProcedureStatement = "call" ProcedureName . */
 /* IfStatement = "if" GuardedCommandList "fi" . */
 /* DoStatement =  "do" GuardedCommandList "od" . */
-BEGIN_NONTERMINAL_HANDLER ( void, statement_part )  {
-  syntax_check ( FIRST ( STATEMENT_PART ) + stop );  
-  token_set extra = SYMBOLS ( SEMICOLON ) + stop;
+BEGIN_NONTERMINAL_HANDLER (void, statement_part)  {
+  syntax_check (FIRST (STATEMENT_PART) + stop);  
+  token_set extra = SYMBOLS (SEMICOLON) + stop;
   int start, done, loop;
-  while ( ( _token >= SKIP && _token <= DO ) 
-	  || IDENTIFIER == _token ) {
+  while ((_token >= SKIP && _token <= DO) 
+	  || IDENTIFIER == _token) {
     string name; token tok;
     parser::token_vector      vars;  parser::token_vector::iterator      it;
     parser::expression_vector exprs; parser::expression_vector::iterator jt;
-    switch ( _token ) {
+    switch (_token) {
     case SKIP: 
-      DEBUG_OUTPUT ( "skip" );
+      DEBUG_OUTPUT ("skip");
       /* EmptyStatement = "skip" . */
-      expect ( SKIP, extra );
+      expect (SKIP, extra);
       break;    
     case READ:
-      DEBUG_OUTPUT ( "read" );
+      DEBUG_OUTPUT ("read");
       /* ReadStatement = "read" VariableAccessList . */
-      expect ( READ, FIRST ( VARIABLE_ACCESS_LIST ) + extra );
-      vars = variable_access_list ( extra );
-      _emitter.read ( vars.size () );
+      expect (READ, FIRST (VARIABLE_ACCESS_LIST) + extra);
+      vars = variable_access_list (extra);
+      _emitter.read (vars.size ());
       break;
     case WRITE:
-      DEBUG_OUTPUT ( "write" );
+      DEBUG_OUTPUT ("write");
       /* WriteStatement = "write" ExpressionList . */
-      expect ( WRITE, FIRST ( EXPRESSION_LIST ) + extra );
-      exprs = expression_list ( extra );
-      _emitter.write ( exprs.size () );
+      expect (WRITE, FIRST (EXPRESSION_LIST) + extra);
+      exprs = expression_list (extra);
+      _emitter.write (exprs.size ());
       break;
     case CALL:
-      DEBUG_OUTPUT ( "call" );
+      DEBUG_OUTPUT ("call");
       /* ProcedureStatement = "call" ProcedureName . */
-      expect ( CALL, SYMBOLS ( IDENTIFIER ) + extra );      
-      expect ( name, extra );
-      if ( !name.empty () ) { 
+      expect (CALL, SYMBOLS (IDENTIFIER) + extra);      
+      expect (name, extra);
+      if (!name.empty ()) { 
 	/* -- here we look up the ID by name and check it's kind, if it is 
 	   a procedure then all is well, if it is not, then we have an 
 	   error or some sort or another */
-	tok = find ( name );
-	if ( tok.kind () != kind::procedure ) {
-	  token proc ( PROC, name );
-	  error ( error::input::procedure, proc );
+	tok = find (name);
+	if (tok.kind () != kind::procedure) {
+	  token proc (PROC, name);
+	  error (error::input::procedure, proc);
 	} else {
-	  _emitter.call ( _symbols.level () - tok.level (), tok.start () );
-	  _symbols.push_storage ( 3 );
+	  _emitter.call (_symbols.level () - tok.level (), tok.start ());
+	  _symbols.push_storage (3);
 	}
       }
       break;
     case IF:
       /*
-	expect ( IF );
+	expect (IF);
 	type = expression ()
-	check_types ( type, type::boolean );
-	expect ( THEN );
-	new_label ( label1 );
-	emit ( DO, label1 );
-	pop_storage ( 1 );
+	check_types (type, type::boolean);
+	expect (THEN);
+	new_label (label1);
+	emit (DO, label1);
+	pop_storage (1);
 	statement ();
 	if current_symbol == ELSE then
-	  expect ( ELSE );
-	  new_label ( label2 );
-	  emit ( GOTO, label2 );
-	  emit ( defaddr, label1 );
+	  expect (ELSE);
+	  new_label (label2);
+	  emit (GOTO, label2);
+	  emit (defaddr, label1);
 	  statement ();
-	  emit ( defaddr, label2 );
+	  emit (defaddr, label2);
 	else
-	  emit ( defaddr, label1 );
+	  emit (defaddr, label1);
 	end;
 
 n-1: ...        
@@ -596,100 +659,100 @@ n+4: ...
 L_NEXT: ... next code ...
        */
 
-      DEBUG_OUTPUT ( "if" );
+      DEBUG_OUTPUT ("if");
       /* IfStatement = "if" GuardedCommandList "fi" . */      
-      expect ( IF, FIRST ( GUARDED_COMMAND_LIST ) + SYMBOLS ( FI ) + extra );
+      expect (IF, FIRST (GUARDED_COMMAND_LIST) + SYMBOLS (FI) + extra);
       start = new_label (), done = new_label ();
-      guarded_command_list ( start, done, SYMBOLS ( FI ) + extra );
-      _emitter.define_address ( start );
-      _emitter.fi ( line () );      
-      _emitter.define_address ( done );
-      expect ( FI, extra );
+      guarded_command_list (start, done, SYMBOLS (FI) + extra);
+      _emitter.define_address (start);
+      _emitter.fi (line ());      
+      _emitter.define_address (done);
+      expect (FI, extra);
       break;
     case DO:
       /*
-	new_label ( label1 );
-	emit ( defaddr, label1 );
-	expect ( WHILE );
+	new_label (label1);
+	emit (defaddr, label1);
+	expect (WHILE);
 	type = expression ();
-	check_type ( type, type::boolean );
-	expect ( DO );
-	new_label ( label2 );
-	emit ( DO, label2 );
-	pop_storage ( 1 );
+	check_type (type, type::boolean);
+	expect (DO);
+	new_label (label2);
+	emit (DO, label2);
+	pop_storage (1);
 	statement ();
-	emit ( GOTO, label1 );
-	emit ( defaddr, label2 );
+	emit (GOTO, label1);
+	emit (defaddr, label2);
 
 	...        
 ok := true;
 do ok -> 
-  ok := ( i < 10 );
+  ok := (i < 10);
   write 1;
 od
 ...
         
    L_0: ARROW    L_NEXT
-        ...      // evaluate ==> ok := ( i < 10 );
+        ...      // evaluate ==> ok := (i < 10);
 		 CONSTANT 1
         WRITE    1
         BAR      L_0   
 L_NEXT: ... next code ...
 	
        */
-      DEBUG_OUTPUT ( "do" );
+      DEBUG_OUTPUT ("do");
       /* DoStatement = "do" GuardedCommandList "od" . */
-      expect ( DO, FIRST ( GUARDED_COMMAND_LIST ) + SYMBOLS ( OD ) + extra );
+      expect (DO, FIRST (GUARDED_COMMAND_LIST) + SYMBOLS (OD) + extra);
       start = new_label (), loop = new_label ();
-      _emitter.define_address ( loop );
-      guarded_command_list ( start, loop, SYMBOLS ( OD ) + extra );
-      _emitter.define_address ( start );
-      expect ( OD, extra );
+      _emitter.define_address (loop);
+      guarded_command_list (start, loop, SYMBOLS (OD) + extra);
+      _emitter.define_address (start);
+      expect (OD, extra);
       break;
     case IDENTIFIER: /* ASSIGN */
-      DEBUG_OUTPUT ( "assign" );
+      DEBUG_OUTPUT ("assign");
       /* AssignmentStatement = VariableAccessList ":=" ExpressionList . */    
-      vars = variable_access_list ( SYMBOLS ( ASSIGN ) 
-				    + FIRST ( EXPRESSION_LIST ) 
-				    + extra );
-      expect ( ASSIGN, FIRST ( EXPRESSION_LIST ) + extra );
-      exprs = expression_list ( extra );      
+      vars = variable_access_list (SYMBOLS (ASSIGN) 
+				    + FIRST (EXPRESSION_LIST) 
+				    + extra);
+      expect (ASSIGN, FIRST (EXPRESSION_LIST) + extra);
+      exprs = expression_list (extra);      
       /* -- check types involved in the assignment statement */
-      if ( vars.size () == exprs.size () ) {
-	for ( it = vars.begin (), jt = exprs.begin (); 
-	      it != vars.end (); ++it, ++jt ) {
-	  type_check ( *jt, it->type () );	  
+      if (vars.size () == exprs.size ()) {
+	for (it = vars.begin (), jt = exprs.begin (); 
+	      it != vars.end (); ++it, ++jt) {
+	  type_check (*jt, it->type ());	  
 	}
-	_emitter.assign ( vars.size () );
-	_symbols.pop_storage ( vars.size () + 1 );
+	_emitter.assign (vars.size ());
+	_symbols.pop_storage (vars.size () + 1);
       } else {
 	/* -- unbalanced assignment statement (this is a a bit ad-hoc, but 
 	 it will do for now ... it just tells the user which side is heavy */	
-	token heavy ( IDENTIFIER, vars.size () > exprs.size () 
-		      ? "lhs" : "rhs" );
-	error ( error::input::balance, heavy );
+	token heavy (IDENTIFIER, vars.size () > exprs.size () 
+		      ? "lhs" : "rhs");
+	error (error::input::balance, heavy);
       }
       break;
     default:
       /* ERROR! - can't get here */
-      assert ( 0 );
+      assert (0);
       break;
     }  
-    expect ( SEMICOLON, FIRST ( STATEMENT_PART ) + stop );    
+    expect (SEMICOLON, FIRST (STATEMENT_PART) + stop);    
   }  
 } END_NONTERMINAL_HANDLER;
 
 /* --------------------------------------------------------------------*/
 
 /* VariableAccessList = VariableAccess { "," VariableAccess } . */
-BEGIN_NONTERMINAL_HANDLER ( parser::token_vector, variable_access_list ) {
+BEGIN_NONTERMINAL_HANDLER (parser::token_vector, variable_access_list) {
   parser::token_vector vars;
   do { 
-    if ( COMMA == _token ) {
-      expect ( COMMA, FIRST ( VARIABLE_ACCESS ) + stop );
+    if (COMMA == _token) {
+      expect (COMMA, FIRST (VARIABLE_ACCESS) + stop);
     }
-    vars.push_back ( variable_access ( SYMBOLS ( COMMA ) + stop ) );    
-  } while  ( COMMA == _token );
+    vars.push_back (variable_access (SYMBOLS (COMMA) + stop));    
+  } while  (COMMA == _token);
   PREMATURE_END_NONTERMINAL_HANDLER;
   return vars;
 } END_NONTERMINAL_HANDLER;
@@ -697,21 +760,21 @@ BEGIN_NONTERMINAL_HANDLER ( parser::token_vector, variable_access_list ) {
 /* --------------------------------------------------------------------*/
 
 /* VariableAccess = VariableName [ IndexedSelector ] . */
-BEGIN_NONTERMINAL_HANDLER ( token, variable_access ) {
+BEGIN_NONTERMINAL_HANDLER (token, variable_access) {
   string name; token tok;
-  expect ( name, FIRST ( INDEXED_SELECTOR ) + stop );  
-  tok = find ( name );
+  expect (name, FIRST (INDEXED_SELECTOR) + stop);  
+  tok = find (name);
 
   /* cout << "# " << name 
      << ", level: " << tok.level () 
      << ", current block level: " << _symbols.level () << "\n"; */
   
-  _emitter.variable ( _symbols.level () - tok.level (), 
-		      tok.displacement () );
-  _symbols.push_storage ( 1 );
+  _emitter.variable (_symbols.level () - tok.level (), 
+		      tok.displacement ());
+  _symbols.push_storage (1);
   /* IndexedSelector = "[" Expression "]" . */
-  if ( LEFT_BRACKET == _token ) {         
-    indexed_selector ( tok.size (), stop );
+  if (LEFT_BRACKET == _token) {         
+    indexed_selector (tok.size (), stop);
   }   
   PREMATURE_END_NONTERMINAL_HANDLER;
   return tok;  
@@ -720,14 +783,14 @@ BEGIN_NONTERMINAL_HANDLER ( token, variable_access ) {
 /* --------------------------------------------------------------------*/
 
 /* ExpressionList = Expression { "," Expression } . */
-BEGIN_NONTERMINAL_HANDLER ( parser::expression_vector, expression_list ) {
+BEGIN_NONTERMINAL_HANDLER (parser::expression_vector, expression_list) {
   parser::expression_vector exprs;
   do { 
-    if ( COMMA == _token ) {
-      expect ( COMMA, FIRST ( EXPRESSION ) + stop ); 
+    if (COMMA == _token) {
+      expect (COMMA, FIRST (EXPRESSION) + stop); 
     }
-    exprs.push_back ( expression ( SYMBOLS ( COMMA ) + stop ) );
-  } while ( COMMA == _token );
+    exprs.push_back (expression (SYMBOLS (COMMA) + stop));
+  } while (COMMA == _token);
   PREMATURE_END_NONTERMINAL_HANDLER;
   return exprs;  
 } END_NONTERMINAL_HANDLER;
@@ -735,62 +798,62 @@ BEGIN_NONTERMINAL_HANDLER ( parser::expression_vector, expression_list ) {
 /* --------------------------------------------------------------------*/
 
 /* GuardedCommandList = GuardedCommand { "[]" GuardedCommand } . */
-BEGIN_NONTERMINAL_HANDLER_X ( void, guarded_command_list ( int &start, 
+BEGIN_NONTERMINAL_HANDLER_X (void, guarded_command_list (int &start, 
 							   int go_to, 
 							   token_set const
-							   &stop ) ) {
-  guarded_command ( start, go_to, SYMBOLS ( GUARD_SEPARATOR ) + stop );
-  while ( GUARD_SEPARATOR == _token ) {
-    expect ( GUARD_SEPARATOR, FIRST ( GUARDED_COMMAND ) + stop );
-    guarded_command ( start, go_to, stop );
+							   &stop)) {
+  guarded_command (start, go_to, SYMBOLS (GUARD_SEPARATOR) + stop);
+  while (GUARD_SEPARATOR == _token) {
+    expect (GUARD_SEPARATOR, FIRST (GUARDED_COMMAND) + stop);
+    guarded_command (start, go_to, stop);
   }
 } END_NONTERMINAL_HANDLER;
 
 /* --------------------------------------------------------------------*/
 
 /* GuardedCommand = Expression "->" StatementPart . */
-BEGIN_NONTERMINAL_HANDLER_X ( void, guarded_command ( int &this_label, 
+BEGIN_NONTERMINAL_HANDLER_X (void, guarded_command (int &this_label, 
 						      int go_to, 
 						      token_set const 
-						      &stop ) ) {
-  _emitter.define_address ( this_label );
-  type::code type = expression ( SYMBOLS ( GUARD_POINT ) 
-				 + FIRST ( STATEMENT_PART ) + stop );
+						      &stop)) {
+  _emitter.define_address (this_label);
+  type::code type = expression (SYMBOLS (GUARD_POINT) 
+				 + FIRST (STATEMENT_PART) + stop);
   /* -- ensure that the expression given before the arrow is of type
      boolean; otherwise, issue an error to the user */
-  if ( type::boolean != type && type::universal != type ) {
-    error ( error::input::boolean );
+  if (type::boolean != type && type::universal != type) {
+    error (error::input::boolean);
   }  
   this_label = new_label ();
-  _emitter.arrow ( this_label );
-  expect ( GUARD_POINT, FIRST ( STATEMENT_PART ) + stop );
-  statement_part ( stop );
-  _emitter.bar ( go_to );
+  _emitter.arrow (this_label);
+  expect (GUARD_POINT, FIRST (STATEMENT_PART) + stop);
+  statement_part (stop);
+  _emitter.bar (go_to);
 } END_NONTERMINAL_HANDLER;
 
 /* --------------------------------------------------------------------*/
 
 /* Expression = PrimaryExpression { PrimaryOperator PrimaryExpression } . */
 /* PrimaryOperator = "&" | "|" . */
-BEGIN_NONTERMINAL_HANDLER ( type::code, expression )  {
+BEGIN_NONTERMINAL_HANDLER (type::code, expression)  {
   type::code t1, t2; token_code code;
-  t1 = primary_expression ( FIRST ( PRIMARY_OPERATOR ) 
-			    + FIRST ( PRIMARY_EXPRESSION ) + stop );
+  t1 = primary_expression (FIRST (PRIMARY_OPERATOR) 
+			    + FIRST (PRIMARY_EXPRESSION) + stop);
   /* PrimaryOperator (= "&" | "|" .) */  
-  syntax_check ( FIRST ( PRIMARY_OPERATOR ) 
-		 + FIRST ( PRIMARY_EXPRESSION ) + stop ); 
-  while ( LOGICAL_AND == _token || LOGICAL_OR == _token ) {
+  syntax_check (FIRST (PRIMARY_OPERATOR) 
+		 + FIRST (PRIMARY_EXPRESSION) + stop); 
+  while (LOGICAL_AND == _token || LOGICAL_OR == _token) {
     code = _token;
-    expect ( _token, FIRST ( PRIMARY_EXPRESSION ) + stop );
-    t2 = primary_expression ( FIRST ( PRIMARY_OPERATOR ) 
-			      + FIRST ( PRIMARY_EXPRESSION ) + stop );     
-    type_check ( t1, t2 );
-    switch ( code ) {
+    expect (_token, FIRST (PRIMARY_EXPRESSION) + stop);
+    t2 = primary_expression (FIRST (PRIMARY_OPERATOR) 
+			      + FIRST (PRIMARY_EXPRESSION) + stop);     
+    type_check (t1, t2);
+    switch (code) {
     case LOGICAL_AND: _emitter.and$ (); break;
     case  LOGICAL_OR: _emitter.or$ ();  break;
     default:          /* do nothing */  break;
     }
-    _symbols.pop_storage ( 1 );
+    _symbols.pop_storage (1);
   }
   PREMATURE_END_NONTERMINAL_HANDLER;
   return t1;
@@ -801,28 +864,28 @@ BEGIN_NONTERMINAL_HANDLER ( type::code, expression )  {
 /* PrimaryExpression = SimpleExpression [ RelationalOperator	\
    SimpleExpression ] . */
 /* RelationalOperator = "<" | "=" | ">" . */
-BEGIN_NONTERMINAL_HANDLER ( type::code, primary_expression )  {
+BEGIN_NONTERMINAL_HANDLER (type::code, primary_expression)  {
   type::code t1, t2; token_code code;
   bool relational = false;
-  t1 = simple_expression ( FIRST ( RELATIONAL_OPERATOR ) 
-			   + FIRST ( SIMPLE_EXPRESSION ) + stop );
+  t1 = simple_expression (FIRST (RELATIONAL_OPERATOR) 
+			   + FIRST (SIMPLE_EXPRESSION) + stop);
   /* RelationalOperator (= "<" | "=" | ">" .) */
-  syntax_check ( FIRST ( RELATIONAL_OPERATOR ) 
-		 + FIRST ( SIMPLE_EXPRESSION ) + stop );
-  while ( _token >= EQUAL && _token <= LESS_THAN ) {
+  syntax_check (FIRST (RELATIONAL_OPERATOR) 
+		 + FIRST (SIMPLE_EXPRESSION) + stop);
+  while (_token >= EQUAL && _token <= LESS_THAN) {
     code = _token;
     relational = true;    
-    expect ( _token, FIRST ( SIMPLE_EXPRESSION ) + stop );
-    t2 = simple_expression ( FIRST ( RELATIONAL_OPERATOR ) 
-			     + FIRST ( SIMPLE_EXPRESSION ) + stop );    
-    type_check ( t1, t2 );
-    switch ( code ) {
+    expect (_token, FIRST (SIMPLE_EXPRESSION) + stop);
+    t2 = simple_expression (FIRST (RELATIONAL_OPERATOR) 
+			     + FIRST (SIMPLE_EXPRESSION) + stop);    
+    type_check (t1, t2);
+    switch (code) {
     case GREATER_THAN: _emitter.greater (); break;
     case        EQUAL: _emitter.equal ();   break;    
     case    LESS_THAN: _emitter.less ();    break;
     default:           /* do nothing */     break;
     } 
-    _symbols.pop_storage ( 1 );
+    _symbols.pop_storage (1);
   }  
   PREMATURE_END_NONTERMINAL_HANDLER;
   /* -- here we determine if we have done a comparison of if we've 
@@ -835,33 +898,33 @@ BEGIN_NONTERMINAL_HANDLER ( type::code, primary_expression )  {
 /* --------------------------------------------------------------------*/
 
 /* SimpleExpression = [ "-" ] Term { AddingOperator Term } . */
-BEGIN_NONTERMINAL_HANDLER ( type::code, simple_expression )  {  
+BEGIN_NONTERMINAL_HANDLER (type::code, simple_expression)  {  
   type::code t1, t2; token_code code;
   /* [ "-" ] Term */
   bool negative = false; 
-  syntax_check ( SYMBOLS ( MINUS ) + stop );
-  if ( MINUS == _token ) { 
+  syntax_check (SYMBOLS (MINUS) + stop);
+  if (MINUS == _token) { 
     negative = true;
-    expect ( MINUS, FIRST ( ADDING_OPERATOR ) + FIRST ( TERM ) + stop );
+    expect (MINUS, FIRST (ADDING_OPERATOR) + FIRST (TERM) + stop);
   }
-  t1 = term ( FIRST ( ADDING_OPERATOR ) + FIRST ( TERM ) + stop );
-  if ( negative ) { 
-    type_check ( t1, type::integer ); 
+  t1 = term (FIRST (ADDING_OPERATOR) + FIRST (TERM) + stop);
+  if (negative) { 
+    type_check (t1, type::integer); 
     _emitter.minus ();
   }
   /* { AddingOperator (= "+" | "-" .) Term } */
-  syntax_check ( FIRST ( ADDING_OPERATOR ) + FIRST ( TERM ) + stop );
-  while ( PLUS == _token || MINUS == _token ) {
+  syntax_check (FIRST (ADDING_OPERATOR) + FIRST (TERM) + stop);
+  while (PLUS == _token || MINUS == _token) {
     code = _token;
-    expect ( _token, FIRST ( TERM ) + stop );
-    t2 = term ( FIRST ( ADDING_OPERATOR ) + FIRST ( TERM ) + stop );    
-    type_check ( t1, t2 ); 
-    switch ( code ) {
+    expect (_token, FIRST (TERM) + stop);
+    t2 = term (FIRST (ADDING_OPERATOR) + FIRST (TERM) + stop);    
+    type_check (t1, t2); 
+    switch (code) {
     case  PLUS: _emitter.add ();      break;
     case MINUS: _emitter.subtract (); break;
     default:    /* do nothing */      break;
     }
-    _symbols.pop_storage ( 1 );
+    _symbols.pop_storage (1);
   }  
   PREMATURE_END_NONTERMINAL_HANDLER;
   return t1;
@@ -870,23 +933,23 @@ BEGIN_NONTERMINAL_HANDLER ( type::code, simple_expression )  {
 /* --------------------------------------------------------------------*/
 
 /* Term = Factor { MultiplyingOperator Factor } . */
-BEGIN_NONTERMINAL_HANDLER ( type::code, term )  {
+BEGIN_NONTERMINAL_HANDLER (type::code, term)  {
   type::code t1, t2; token_code code;
-  t1 = factor ( FIRST ( MULTIPLYING_OPERATOR ) + FIRST ( FACTOR ) + stop );
+  t1 = factor (FIRST (MULTIPLYING_OPERATOR) + FIRST (FACTOR) + stop);
   /* MultiplyingOperator (= "*" | "/" | "\" .) Factor */
-  while ( _token >= MULTIPLY && _token <= MODULO ) {
+  while (_token >= MULTIPLY && _token <= MODULO) {
     code = _token;
-    expect ( _token, FIRST ( FACTOR ) + stop );
-    syntax_check ( FIRST ( MULTIPLYING_OPERATOR ) + FIRST ( FACTOR ) + stop );
-    t2 = factor ( FIRST ( MULTIPLYING_OPERATOR ) + FIRST ( FACTOR ) + stop );
-    type_check ( t1, t2 );    
-    switch ( code ) {
+    expect (_token, FIRST (FACTOR) + stop);
+    syntax_check (FIRST (MULTIPLYING_OPERATOR) + FIRST (FACTOR) + stop);
+    t2 = factor (FIRST (MULTIPLYING_OPERATOR) + FIRST (FACTOR) + stop);
+    type_check (t1, t2);    
+    switch (code) {
     case MULTIPLY: _emitter.multiply (); break;
     case   DIVIDE: _emitter.divide ();   break;
     case   MODULO: _emitter.modulo ();   break;
     default:       /* do nothing */      break;
     }
-    _symbols.pop_storage ( 1 );
+    _symbols.pop_storage (1);
   }
   PREMATURE_END_NONTERMINAL_HANDLER;
   return t1;
@@ -895,23 +958,23 @@ BEGIN_NONTERMINAL_HANDLER ( type::code, term )  {
 /* --------------------------------------------------------------------*/
 
 /* Factor = Constant | VariableAccess | "(" Expression ")" | "~" Factor . */
-BEGIN_NONTERMINAL_HANDLER ( type::code, factor )  {
+BEGIN_NONTERMINAL_HANDLER (type::code, factor)  {
   string name; constant_type c; token tok;
   type::code type = type::universal;
   // bool is_constant = false;
-  switch ( _token ) {    
+  switch (_token) {    
   case LEFT_PAREN:
     /* "(" Expression ")" */
-    expect ( LEFT_PAREN, FIRST ( EXPRESSION ) 
-	     + SYMBOLS ( RIGHT_PAREN ) + stop );
-    type = expression ( SYMBOLS ( RIGHT_PAREN ) + stop );
-    expect ( RIGHT_PAREN, stop );
+    expect (LEFT_PAREN, FIRST (EXPRESSION) 
+	     + SYMBOLS (RIGHT_PAREN) + stop);
+    type = expression (SYMBOLS (RIGHT_PAREN) + stop);
+    expect (RIGHT_PAREN, stop);
     break;
   case LOGICAL_NOT:
     /* "~" Factor */
-    expect ( LOGICAL_NOT, FIRST ( FACTOR ) + stop );
-    type = factor ( stop );
-    type_check ( type, type::boolean );
+    expect (LOGICAL_NOT, FIRST (FACTOR) + stop);
+    type = factor (stop);
+    type_check (type, type::boolean);
     _emitter.not$ ();
     break;
   default:
@@ -926,51 +989,51 @@ BEGIN_NONTERMINAL_HANDLER ( type::code, factor )  {
        simulate the remainder of variable_access() here.
        
        void variable_access () {
-         match ( IDENTIFIER );
-         if ( LEFT_BRACKET == _token ) {
-           indexed_selector ( stop );
+         match (IDENTIFIER);
+         if (LEFT_BRACKET == _token) {
+           indexed_selector (stop);
          }  
        }
     */
         
-    if ( IDENTIFIER == _token ) {
-      _token.value ( name );
-      tok = find ( name );
-      if ( tok.kind () == kind::constant ) { 
-	c = constant ( stop );      
-	_emitter.constant ( c.first );
-	_symbols.push_storage ( 1 );
+    if (IDENTIFIER == _token) {
+      _token.value (name);
+      tok = find (name);
+      if (tok.kind () == kind::constant) { 
+	c = constant (stop);      
+	_emitter.constant (c.first);
+	_symbols.push_storage (1);
 	type = c.second;      
       } else {
-	tok = variable_access ( stop );
+	tok = variable_access (stop);
 	_emitter.value ();
-	_symbols.push_storage ( 1 );
+	_symbols.push_storage (1);
 	type = tok.type ();
       }
     } else {
-      c = constant ( stop );      
-      _emitter.constant ( c.first );
-      _symbols.push_storage ( 1 );
+      c = constant (stop);      
+      _emitter.constant (c.first);
+      _symbols.push_storage (1);
       type = c.second;      
     }
     
     /*
-    if ( IDENTIFIER == _token ) {
-      _token.value ( name );
-      tok = find ( name );
-      if ( tok.kind () == kind::constant ) { 
+    if (IDENTIFIER == _token) {
+      _token.value (name);
+      tok = find (name);
+      if (tok.kind () == kind::constant) { 
 	is_constant = true;
       } else {
-	tok = variable_access ( stop );
+	tok = variable_access (stop);
 	_emitter.value ();
-	_symbols.push_storage ( 1 );
+	_symbols.push_storage (1);
 	type = tok.type ();   
       } 
     }      
-    if ( is_constant ) {
-      c = constant ( stop );      
-      _emitter.constant ( c.first );
-      _symbols.push_storage ( 1 );
+    if (is_constant) {
+      c = constant (stop);      
+      _emitter.constant (c.first);
+      _symbols.push_storage (1);
       type = c.second;      
     }
     */
@@ -983,17 +1046,17 @@ BEGIN_NONTERMINAL_HANDLER ( type::code, factor )  {
 /* --------------------------------------------------------------------*/
 
 /* IndexedSelector = "[" Expression "]" . */
-BEGIN_NONTERMINAL_HANDLER_X ( void, indexed_selector ( int upper, token_set
-						       const &stop ) )  {
+BEGIN_NONTERMINAL_HANDLER_X (void, indexed_selector (int upper, token_set
+						       const &stop))  {
   int line = _scanner.line ();  
-  expect ( LEFT_BRACKET, FIRST ( EXPRESSION ) 
-	   + SYMBOLS ( RIGHT_BRACKET ) + stop );  
-  type::code type = expression ( SYMBOLS ( RIGHT_BRACKET ) + stop );
-  if ( type::integer != type && type::universal != type ) {
-    error ( error::input::integer );
+  expect (LEFT_BRACKET, FIRST (EXPRESSION) 
+	   + SYMBOLS (RIGHT_BRACKET) + stop);  
+  type::code type = expression (SYMBOLS (RIGHT_BRACKET) + stop);
+  if (type::integer != type && type::universal != type) {
+    error (error::input::integer);
   }   
-  _emitter.index ( upper, line );
-  expect ( RIGHT_BRACKET, stop );
+  _emitter.index (upper, line);
+  expect (RIGHT_BRACKET, stop);
 } END_NONTERMINAL_HANDLER;
 
 /* --------------------------------------------------------------------*/
@@ -1002,10 +1065,10 @@ BEGIN_NONTERMINAL_HANDLER_X ( void, indexed_selector ( int upper, token_set
 /* Numeral = Digit { Digit } . */
 /* BooleanSymbol = "false" | "true" . */
 /* Name = Letter { Letter | Digit | "_" } . */
-BEGIN_NONTERMINAL_HANDLER ( parser::constant_type, constant )  {
+BEGIN_NONTERMINAL_HANDLER (parser::constant_type, constant)  {
   string name; token t; int x = -1;
   type::code type = type::universal;    
-  switch ( _token ) {
+  switch (_token) {
   case IDENTIFIER:
     /* -- here the type of the constant will be inffered from the 
        identifier we are given */    
@@ -1013,9 +1076,9 @@ BEGIN_NONTERMINAL_HANDLER ( parser::constant_type, constant )  {
     t = find ( name );
     if ( t.kind () != kind::constant ) {
       type = t.type ();
-      t.value ( x );
+      t.value (x);
     } else {
-      error ( error::input::constant, t );
+      error (error::input::constant, t);
     }    
     break;
   case TRUE:
@@ -1028,23 +1091,23 @@ BEGIN_NONTERMINAL_HANDLER ( parser::constant_type, constant )  {
     break;
   case NUMBER:
     type = type::integer;
-    _token.value ( x );    
+    _token.value (x);    
     break;
   default:
     /* ERROR! - can't get here */    
-    assert ( 0 ); 
+    assert (0); 
     break;
   }  
-  expect ( _token, stop );
+  expect (_token, stop);
   PREMATURE_END_NONTERMINAL_HANDLER;
-  return make_pair ( x, type );
+  return make_pair (x, type);
 } END_NONTERMINAL_HANDLER;
 
 /* --------------------------------------------------------------------*/
 
 void parser::parse () {  
   move ();                      /* boot-strap the parser and get the */
-  program ( SYMBOLS ( END_OF_FILE ) ); /* first token, then match the 
+  program (SYMBOLS (END_OF_FILE)); /* first token, then match the 
 					  main block */
 }
 

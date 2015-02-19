@@ -52,8 +52,9 @@ namespace error {
       procedure        =  -8,   /* not a procedure */
       balance          =  -9,   /* unbalanced assignment statement */
       boolean          = -10,   /* boolean expression expected */ 
-      integer          = -11,   /* integer expression expected */ 
-      unknown          = -12    /* unknown error */
+      integer          = -11,   /* integer expression expected */
+      did_you_mean     = -12,   /* spelling suggestion */
+      unknown          = -13    /* unknown error */
     };
   }
 }
@@ -87,8 +88,8 @@ struct error_interface {
 
   virtual ~error_interface () {};
   
-  virtual void error ( error::application::code, ... ) const = 0;
-  virtual void error ( error::input::code, ... ) const = 0;  
+  virtual void error (error::application::code, ...) const = 0;
+  virtual void error (error::input::code, ...) const = 0;  
 
 };
 

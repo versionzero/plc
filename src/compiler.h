@@ -38,18 +38,18 @@ class compiler : public error_interface, public emitter_interface {
   parser            _parser;     /* PL language parser */
   bool              _verbose;    /* noisy output */
   
-  void parse ( int, char*[] );
+  void parse (int, char*[]);
 
-  void error ( error::application::code, ... ) const;
-  void error ( error::input::code, ... ) const;
+  void error (error::application::code, ...) const;
+  void error (error::input::code, ...) const;
   
-  void emit ( std::string const& );  
-  void emit ( std::string const&, int );  
-  void emit ( std::string const&, int , int );  
+  void emit (std::string const&);  
+  void emit (std::string const&, int);  
+  void emit (std::string const&, int , int);  
     
  public:
   
-  compiler ( int, char*[] );
+  compiler (int, char*[]);
   int compile ();
 
 };

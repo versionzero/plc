@@ -53,10 +53,10 @@ protected:
   
 public:
 
-  expression ( token const & = token (), type::code = type::universal );
+  expression (token const & = token (), type::code = type::universal);
   
   type::code type () const;
-  void set_type ( type::code );
+  void set_type (type::code);
 
 };
 
@@ -70,7 +70,7 @@ private:
   
 public:
 
-  identifier ( token const &, type::code, int );
+  identifier (token const &, type::code, int);
   /* -- might be able to get type from the token */
 
   operator int () const;
@@ -83,12 +83,12 @@ class constant : public expression {
 
 public:
   
-  constant ( token const &, type::code = type::universal );
+  constant (token const &, type::code = type::universal);
 
   static constant true$;
   static constant false$;
 
-  void set_value ( token const & );
+  void set_value (token const &);
 
 };
 
@@ -100,7 +100,7 @@ class op : public expression {
 
 public:
 
-  op ( token const &, type::code );
+  op (token const &, type::code);
 
 };
 
@@ -135,7 +135,7 @@ private:
 
 public:
 
-  access ( identifier, expression, type::code );
+  access (identifier, expression, type::code);
 
   identifier const & get_array () const;
   expression const & get_index () const;

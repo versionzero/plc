@@ -39,196 +39,196 @@ emitter_interface::~emitter_interface () {
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::add () {
-  emit ( "ADD" );
+  emit ("ADD");
 }
 
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::and$ () {
-  emit ( "AND" );
+  emit ("AND");
 }
  
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::arrow ( int a ) {
-  emit ( "ARROW", a );
+void emitter_interface::arrow (int a) {
+  emit ("ARROW", a);
 }
  
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::assign ( int n ) {
-  emit ( "ASSIGN", n );
+void emitter_interface::assign (int n) {
+  emit ("ASSIGN", n);
 }
  
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::bar ( int a ) {
-  emit ( "BAR", a );
+void emitter_interface::bar (int a) {
+  emit ("BAR", a);
 }
  
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::call ( int l, int a ) {
-  emit ( "CALL", l, a );
+void emitter_interface::call (int l, int a) {
+  emit ("CALL", l, a);
 }
  
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::constant ( int v ) {
-  emit ( "CONSTANT", v );
+void emitter_interface::constant (int v) {
+  emit ("CONSTANT", v);
 }
 
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::divide () {
-  emit ( "DIVIDE" );
+  emit ("DIVIDE");
 }
  
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::end_procedure () {
-  emit ( "ENDPROC" );
+  emit ("ENDPROC");
 }
  
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::end_program () {
-  emit ( "ENDPROG" );
+  emit ("ENDPROG");
 }
  
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::equal () {
-  emit ( "EQUAL" );
+  emit ("EQUAL");
 }
  
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::fi ( int n ) {
-  emit ( "FI", n );
+void emitter_interface::fi (int n) {
+  emit ("FI", n);
 }
 
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::greater () {
-  emit ( "GREATER" );
+  emit ("GREATER");
 }
 
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::index ( int u, int n ) {
-  emit ( "INDEX", u, n );
+void emitter_interface::index (int u, int n) {
+  emit ("INDEX", u, n);
 }
 
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::less () {
-  emit ( "LESS" );
+  emit ("LESS");
 }
  
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::minus () {
-  emit ( "MINUS" );
+  emit ("MINUS");
 }
  
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::modulo () {
-  emit ( "MODULO" );
+  emit ("MODULO");
 }
  
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::multiply () {
-  emit ( "MULTIPLY" );
+  emit ("MULTIPLY");
 }
  
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::not$ () {
-  emit ( "NOT" );
+  emit ("NOT");
 }
 
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::or$ () {
-  emit ( "OR" );
+  emit ("OR");
 }
  
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::procedure ( int l, int a ) {
-  emit ( "PROC", l, a );
+void emitter_interface::procedure (int l, int a) {
+  emit ("PROC", l, a);
 }
  
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::program ( int l, int a ) {
-  emit ( "PROG", l, a );
+void emitter_interface::program (int l, int a) {
+  emit ("PROG", l, a);
 }
  
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::read ( int n ) {
-  emit ( "READ", n );
+void emitter_interface::read (int n) {
+  emit ("READ", n);
 }
  
 /*--------------------------------------------------------------------*/
 
 void emitter_interface::subtract () {
-  emit ( "SUBTRACT" );
+  emit ("SUBTRACT");
 }
 
 /*--------------------------------------------------------------------*/
  
 void emitter_interface::value () {
-  emit ( "VALUE" );
+  emit ("VALUE");
 }
 
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::variable ( int l, int d ) {
-  emit ( "VARIABLE", l, d );
+void emitter_interface::variable (int l, int d) {
+  emit ("VARIABLE", l, d);
 }
  
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::write ( int n ) {
-  emit ( "WRITE", n );
+void emitter_interface::write (int n) {
+  emit ("WRITE", n);
 }
 
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::define_address ( int a ) {
-  emit ( "DEFADDR", a );
+void emitter_interface::define_address (int a) {
+  emit ("DEFADDR", a);
 }
 
 /*--------------------------------------------------------------------*/
 
-void emitter_interface::define_argument ( int a, int l ) {
-  emit ( "DEFARG", a, l );
+void emitter_interface::define_argument (int a, int l) {
+  emit ("DEFARG", a, l);
 }
 
 /*----------------------------------------------------------------------
   Compiler Methods
 ----------------------------------------------------------------------*/
 
-void compiler::emit ( string const &op ) {
+void compiler::emit (string const &op) {
   // cout << op << "\n";
   _sasm << op << "\n";
 }
 
 /*--------------------------------------------------------------------*/
 
-void compiler::emit ( string const &op, int x ) {
+void compiler::emit (string const &op, int x) {
   // cout << op << " " << x << "\n";
   _sasm << op << " " << x << "\n";
 }
 
 /*--------------------------------------------------------------------*/
 
-void compiler::emit ( string const &op, int x, int y ) {
+void compiler::emit (string const &op, int x, int y) {
   // cout << op << " " << x << " " << y << "\n";
   _sasm << op << " " << x << " " << y << "\n";
 }

@@ -42,7 +42,7 @@ using std::string;
 
 /* --- all the reserved words in PL programming language */
 static struct {
-  const char *word;
+  string     word;
   token_code code;
 } keywords[] = { 
   { "begin",   BEGIN },
@@ -72,13 +72,13 @@ static struct {
   Main Methods
 ----------------------------------------------------------------------*/
 
-symboltbl::symboltbl () : _current ( _contents.begin () ) {
+symboltbl::symboltbl () : _current (_contents.begin ()) {
   push ();
   /* --- insert all the reserved words in to the symbol table */  
-  for ( unsigned int i = 0; i < count_of ( keywords ); ++i ) {
-    _current->insert ( make_pair ( keywords[i].word, 
-				   token ( keywords[i].code, 
-					   keywords[i].word ) ) );
+  for (unsigned int i = 0; i < count_of (keywords); ++i) {
+    _current->insert (make_pair (keywords[i].word, 
+				   token (keywords[i].code, 
+					   keywords[i].word)));
   }  
 }
 
@@ -109,20 +109,20 @@ symboltbl::const_iterator symboltbl::end () const {
 /* --------------------------------------------------------------------*/
 
 pair<symboltbl::iterator, bool> 
-symboltbl::insert ( symboltbl::key_type const & k,
-		    symboltbl::mapped_type const & m ) {  
+symboltbl::insert (symboltbl::key_type const & k,
+		    symboltbl::mapped_type const & m) {  
   _current = _contents.begin ();  /* force to the current block */
-  return _current->insert ( make_pair ( k, m ) );
+  return _current->insert (make_pair (k, m));
 }
 
 /* --------------------------------------------------------------------*/
 
-symboltbl::iterator symboltbl::find ( symboltbl::key_type const & k ) {
+symboltbl::iterator symboltbl::find (symboltbl::key_type const & k) {
   /* --- look at this scope and all previous blocks */
   list_type::iterator it = _contents.begin ();
-  for ( ; it != _contents.end (); ++it ) {
-    map_type::iterator jt = it->find ( k );
-    if ( jt != it->end () ) {
+  for (; it != _contents.end (); ++it) {
+    map_type::iterator jt = it->find (k);
+    if (jt != it->end ()) {
       _current = it;  /* so that users of our container can make an
 			 assertion that jt != _current->end()  */
       return jt;
@@ -136,22 +136,22 @@ symboltbl::iterator symboltbl::find ( symboltbl::key_type const & k ) {
 
 /* --------------------------------------------------------------------*/
 
-symboltbl::iterator symboltbl::find_top ( symboltbl::key_type const & k ) {
+symboltbl::iterator symboltbl::find_top (symboltbl::key_type const & k) {
   _current = _contents.begin ();  
-  return _current->find ( k );
+  return _current->find (k);
 }
 
 /* --------------------------------------------------------------------*/
 
 void symboltbl::push () {
-  _contents.push_front ( map_type () );
+  _contents.push_front (map_type ());
   _current = _contents.begin ();
 }
 
 /* --------------------------------------------------------------------*/
 
 void symboltbl::pop () {
-  if ( _contents.size () > 1 ) {
+  if (_contents.size () > 1) {
     _contents.pop_front ();
     _current = _contents.begin ();
   }
@@ -168,10 +168,10 @@ int symboltbl::level () const {
 
 /* --------------------------------------------------------------------*/
 
-void symboltbl::push_storage ( int ) {  
+void symboltbl::push_storage (int) {  
 }
 
 /* --------------------------------------------------------------------*/
 
-void symboltbl::pop_storage ( int ) {
+void symboltbl::pop_storage (int) {
 }
