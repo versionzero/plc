@@ -48,10 +48,10 @@ void help () {                  /* --- print help */
 
 /*--------------------------------------------------------------------*/
 
-int main ( int argc, char *argv[] ) { /* --- main function */
+int main (int argc, char *argv[]) { /* --- main function */
   
   /* --- print usage message --- */
-  if ( argc > 1 ) {             /* if arguments are given */
+  if (argc > 1) {             /* if arguments are given */
     cerr << PACKAGE_STRING      /* print a startup message */
 	 << " - " << DESCRIPTION << " ("
 	 << PACKAGE_BUGREPORT << ")" << '\n';    
@@ -64,7 +64,7 @@ int main ( int argc, char *argv[] ) { /* --- main function */
 
   /* --- create an instance of the compiler and attempt to compile
      the source file declared on the command-line */
-  compiler plc ( argc, argv );
+  compiler plc (argc, argv);
   return plc.compile ();
   
 }

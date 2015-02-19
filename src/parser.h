@@ -26,7 +26,7 @@
   Preprocessor Definitions
 ----------------------------------------------------------------------*/
 
-#define NONTERMINAL_PARAMS ( token_set const & stop )
+#define NONTERMINAL_PARAMS (token_set const & stop)
 #define NONTERMINAL_HANDLER(r,x) r x NONTERMINAL_PARAMS;
 #define NONTERMINAL_HANDLER_X(r,x) r x;
 
@@ -51,54 +51,54 @@ private:
   token_code move ();
   int new_label (); 
   
-  void expect ( token_code, token_set const& );
-  void expect ( std::string&, token_set const& );
-  token& define ( std::string const&, kind::code, type::code = type::universal,
-		  int = 0, int = 0, int = 0, int = 0 );
-  token& find ( std::string const& );
+  void expect (token_code, token_set const&);
+  void expect (std::string&, token_set const&);
+  token& define (std::string const&, kind::code, type::code = type::universal,
+		  int = 0, int = 0, int = 0, int = 0);
+  token& find (std::string const&);
     
-  void error ( error::input::code ) const;
-  void error ( error::input::code, token const& ) const;
-  void error ( error::input::code, token const&, token const& ) const;
+  void error (error::input::code) const;
+  void error (error::input::code, token const&) const;
+  void error (error::input::code, token const&, token const&) const;
   
-  void syntax_check ( token_set const& );
-  void syntax_error ( token_set const& );
+  void syntax_check (token_set const&);
+  void syntax_error (token_set const&);
   
-  void type_check ( type::code&, type::code );
+  void type_check (type::code&, type::code);
 
   typedef std::pair<int, type::code> constant_type;
   typedef std::vector<type::code>    expression_vector;
   typedef std::vector<token>         token_vector;  
       
   /* --- a method for each (useful) non-terminal in the PL grammar */
-  NONTERMINAL_HANDLER ( void, program );
-  NONTERMINAL_HANDLER_X ( void, block ( int, int, token_set const& ) );
-  NONTERMINAL_HANDLER_X ( int, definition_part ( int&, token_set const& ) );
-  NONTERMINAL_HANDLER ( void, constant_definition );
-  NONTERMINAL_HANDLER_X ( int, variable_definition ( int&, 
-						     token_set const& ) );  
-  NONTERMINAL_HANDLER ( void, procedure_definition );
-  NONTERMINAL_HANDLER ( void, statement_part );
-  NONTERMINAL_HANDLER ( token_vector, variable_access_list );
-  NONTERMINAL_HANDLER ( expression_vector, expression_list );
-  NONTERMINAL_HANDLER_X ( void, guarded_command_list ( int&, int, 
-						       token_set const& ) );
-  NONTERMINAL_HANDLER_X ( void, guarded_command ( int&, int, 
-						token_set const& ) );
-  NONTERMINAL_HANDLER ( type::code, expression );
-  NONTERMINAL_HANDLER ( type::code, primary_expression );
-  NONTERMINAL_HANDLER ( type::code, simple_expression );
-  NONTERMINAL_HANDLER ( type::code, term );
-  NONTERMINAL_HANDLER ( void, multiplying_operator );
-  NONTERMINAL_HANDLER ( type::code, factor );
-  NONTERMINAL_HANDLER ( token, variable_access );
-  NONTERMINAL_HANDLER_X ( void, indexed_selector ( int, token_set const& ) );
-  NONTERMINAL_HANDLER ( constant_type, constant );
+  NONTERMINAL_HANDLER (void, program);
+  NONTERMINAL_HANDLER_X (void, block (int, int, token_set const&));
+  NONTERMINAL_HANDLER_X (int, definition_part (int&, token_set const&));
+  NONTERMINAL_HANDLER (void, constant_definition);
+  NONTERMINAL_HANDLER_X (int, variable_definition (int&, 
+						     token_set const&));  
+  NONTERMINAL_HANDLER (void, procedure_definition);
+  NONTERMINAL_HANDLER (void, statement_part);
+  NONTERMINAL_HANDLER (token_vector, variable_access_list);
+  NONTERMINAL_HANDLER (expression_vector, expression_list);
+  NONTERMINAL_HANDLER_X (void, guarded_command_list (int&, int, 
+						       token_set const&));
+  NONTERMINAL_HANDLER_X (void, guarded_command (int&, int, 
+						token_set const&));
+  NONTERMINAL_HANDLER (type::code, expression);
+  NONTERMINAL_HANDLER (type::code, primary_expression);
+  NONTERMINAL_HANDLER (type::code, simple_expression);
+  NONTERMINAL_HANDLER (type::code, term);
+  NONTERMINAL_HANDLER (void, multiplying_operator);
+  NONTERMINAL_HANDLER (type::code, factor);
+  NONTERMINAL_HANDLER (token, variable_access);
+  NONTERMINAL_HANDLER_X (void, indexed_selector (int, token_set const&));
+  NONTERMINAL_HANDLER (constant_type, constant);
 
 public:
 
-  parser ( std::ifstream&, symboltbl&, error_interface&, 
-	   emitter_interface& );  
+  parser (std::ifstream&, symboltbl&, error_interface&, 
+	   emitter_interface&);  
   void parse ();
 
   unsigned int line () const;

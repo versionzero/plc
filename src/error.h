@@ -87,8 +87,8 @@ struct error_interface {
 
   virtual ~error_interface () {};
   
-  virtual void error ( error::application::code, ... ) const = 0;
-  virtual void error ( error::input::code, ... ) const = 0;  
+  virtual void error (error::application::code, ...) const = 0;
+  virtual void error (error::input::code, ...) const = 0;  
 
 };
 

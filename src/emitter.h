@@ -24,9 +24,9 @@ struct emitter_interface {
 
 protected:
   
-  virtual void emit ( std::string const& ) = 0;  
-  virtual void emit ( std::string const&, int ) = 0;  
-  virtual void emit ( std::string const&, int , int ) = 0;  
+  virtual void emit (std::string const&) = 0;  
+  virtual void emit (std::string const&, int) = 0;  
+  virtual void emit (std::string const&, int , int) = 0;  
 
 public:
 
@@ -34,34 +34,34 @@ public:
 
   void add (); 
   void and$ (); 
-  void arrow ( int ); 
-  void assign ( int ); 
-  void bar ( int ); 
-  void call ( int, int ); 
-  void constant ( int );
+  void arrow (int); 
+  void assign (int); 
+  void bar (int); 
+  void call (int, int); 
+  void constant (int);
   void divide (); 
   void end_procedure (); 
   void end_program (); 
   void equal (); 
-  void fi ( int );
+  void fi (int);
   void greater ();
-  void index ( int, int );
+  void index (int, int);
   void less (); 
   void minus (); 
   void modulo (); 
   void multiply (); 
   void not$ ();
   void or$ (); 
-  void procedure ( int, int ); 
-  void program ( int, int ); 
-  void read ( int ); 
+  void procedure (int, int); 
+  void program (int, int); 
+  void read (int); 
   void subtract (); 
   void value ();
-  void variable ( int, int ); 
-  void write ( int );
+  void variable (int, int); 
+  void write (int);
 
-  void define_address ( int );
-  void define_argument ( int, int );
+  void define_address (int);
+  void define_argument (int, int);
 
 };
 

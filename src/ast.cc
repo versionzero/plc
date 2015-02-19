@@ -52,8 +52,8 @@ int ast::ast::column () const {
   Expressions
 ----------------------------------------------------------------------*/
 
-expression::expression ( token const & op, type::code t ) 
-  : _op ( op ), _type ( t ) {
+expression::expression (token const & op, type::code t) 
+  : _op (op), _type (t) {
 }
 
 /*--------------------------------------------------------------------*/
@@ -64,7 +64,7 @@ type::code expression::type () const {
 
 /*--------------------------------------------------------------------*/
 
-void expression::set_type ( type::code t ) {
+void expression::set_type (type::code t) {
   _type = t;
 }
 
@@ -72,8 +72,8 @@ void expression::set_type ( type::code t ) {
   Expression : identifier
 ----------------------------------------------------------------------*/
 
-identifier::identifier ( token const & op, type::code t, int b ) 
-  : expression ( op, t ), _offset ( b ) {
+identifier::identifier (token const & op, type::code t, int b) 
+  : expression (op, t), _offset (b) {
 }
 
 /*--------------------------------------------------------------------*/
@@ -86,13 +86,13 @@ identifier::operator int () const {
   Expression : constant
 ----------------------------------------------------------------------*/
 
-constant::constant ( token const & op, type::code t )
-  : expression ( op, t ) {
+constant::constant (token const & op, type::code t)
+  : expression (op, t) {
 }
 
 /*--------------------------------------------------------------------*/
 
-void constant::set_value ( token const & val ) {
+void constant::set_value (token const & val) {
   _op = val;
 }
 
@@ -104,14 +104,14 @@ void constant::set_value ( token const & val ) {
   Operator : op
 ----------------------------------------------------------------------*/
 
-op::op ( token const & tok, type::code t )
-  : expression ( tok, t ) {
+op::op (token const & tok, type::code t)
+  : expression (tok, t) {
 }
 
 /*----------------------------------------------------------------------
   Operator : access
 ----------------------------------------------------------------------*/
 
-ast::access::access ( identifier a, expression i, type::code t ) 
-  : op ( token ( INDEX, "[]" ), t ), _array ( a ), _index ( i ) {
+ast::access::access (identifier a, expression i, type::code t) 
+  : op (token (INDEX, "[]"), t), _array (a), _index (i) {
 }

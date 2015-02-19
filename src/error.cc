@@ -1,13 +1,13 @@
 /*----------------------------------------------------------------------
   File    : error.cc
-  Contents: 
+  Contents:
   Author  : Ben Burnett
   History : 10.01.2007 file created
 ----------------------------------------------------------------------*/
 
 #if HAVE_CONFIG_H
 #include <config.h>
-#endif 
+#endif
 
 #include "compiler.h"
 #include "error.h"
@@ -44,7 +44,7 @@ static const char *_fatal_messages[] = {
   /*  -7 */  "unknown option -%c\n",
   /*  -8 */  "wrong number of arguments\n",
   /*  -9 */  "unknown error\n",
-};  
+}; 
 
 static const char *_input_messages[] = {
   /*   0 */  "no error\n",
@@ -66,37 +66,37 @@ static const char *_input_messages[] = {
   Functions
 ----------------------------------------------------------------------*/
 
-void compiler::error ( error::application::code code, ... ) const
+void compiler::error (error::application::code code, ...) const
 {                               /* --- print an error message and quit */
   va_list     args;             /* list of variable arguments */
   const char *msg;              /* error message */
-  if ( code < error::application::unknown ) {
+  if (code < error::application::unknown) {
     code = error::application::unknown; }
-  if ( code < 0 ) {             /* if to report an error, */
+  if (code < 0) {             /* if to report an error, */
     msg = _fatal_messages[-code]; /* get the error message */
-    if ( !msg ) { msg = _fatal_messages[-error::application::unknown]; }   
-    fprintf ( stderr, "%s: ", PACKAGE );
-    va_start ( args, code );    /* get variable arguments */
-    vfprintf ( stderr, msg, args ); /* print error message */
-    va_end ( args );            /* end argument evaluation */
+    if (!msg) { msg = _fatal_messages[-error::application::unknown]; }  
+    fprintf (stderr, "%s: ", PACKAGE);
+    va_start (args, code);    /* get variable arguments */
+    vfprintf (stderr, msg, args); /* print error message */
+    va_end (args);            /* end argument evaluation */
   }
-  exit ( code );                /* abort the program */
-}  
+  exit (code);                /* abort the program */
+} 
 
 /* --------------------------------------------------------------------*/
 
-void compiler::error ( error::input::code code, ... ) const
+void compiler::error (error::input::code code, ...) const
 {                               /* --- print an error message */
   va_list     args;             /* list of variable arguments */
   const char *msg;              /* error message */
-  if ( code < error::input::unknown ) { 
+  if (code < error::input::unknown) {
     code = error::input::unknown; }
-  if ( code < 0 ) {             /* if to report an error, */
+  if (code < 0) {             /* if to report an error, */
     msg = _input_messages[-code]; /* get the error message */
-    if ( !msg ) { msg = _input_messages[-error::input::unknown]; }
-    fprintf ( stderr, "%s:%3d: error: ", _fn_in, _parser.line () );
-    va_start ( args, code );    /* get variable arguments */
-    vfprintf ( stderr, msg, args ); /* print error message */    
-    va_end ( args );            /* end argument evaluation */  
-  }  
-}  
+    if (!msg) { msg = _input_messages[-error::input::unknown]; }
+    fprintf (stderr, "%s:%3d: error: ", _fn_in, _parser.line ());
+    va_start (args, code);    /* get variable arguments */
+    vfprintf (stderr, msg, args); /* print error message */   
+    va_end (args);            /* end argument evaluation */ 
+  } 
+} 

@@ -55,10 +55,10 @@ public:
   iterator end ();
   const_iterator end () const;
 
-  std::pair<iterator, bool> insert ( key_type const &, mapped_type const & );  
+  std::pair<iterator, bool> insert (key_type const &, mapped_type const &);  
 
-  iterator find ( key_type const & ); 
-  iterator find_top ( key_type const & );   
+  iterator find (key_type const &); 
+  iterator find_top (key_type const &);   
   /* notice there is no const version of the above, we will implement it 
      when -- and if -- it become nessessary (which I hope it doesn't) */
 
@@ -66,8 +66,8 @@ public:
   void pop ();                  /* close the current scope */  
   int  level () const;          /* current # of open scopes */
 
-  void push_storage ( int );
-  void pop_storage ( int );
+  void push_storage (int);
+  void pop_storage (int);
 
 };
 
