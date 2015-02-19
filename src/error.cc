@@ -44,7 +44,7 @@ static const char *_fatal_messages[] = {
   /*  -7 */  "unknown option -%c\n",
   /*  -8 */  "wrong number of arguments\n",
   /*  -9 */  "unknown error\n",
-}; 
+};  
 
 static const char *_input_messages[] = {
   /*   0 */  "no error\n",
