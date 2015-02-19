@@ -13,6 +13,7 @@
 #include "parser.h"
 #include <cassert>
 #include <cstdarg>
+#include <cassert>
 #include <iostream>
 #include <string>
 #include <utility>

@@ -12,6 +12,7 @@
 #include "scanner.h"
 #include "misc.h"
 #include <cstdlib>
+#include <cassert>
 
 /*----------------------------------------------------------------------
   Namespace Inclusions
@@ -206,6 +207,7 @@ void scanner::scan_symbol () {
       get ( c );                /* eat next char */      
     } break;
   default:
+    code = UNKNOWN;
     /* ERROR -- can't get here, as we catch unknown symbols before
                 we enter this procedure */
     //assert ( 0 );
