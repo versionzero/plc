@@ -282,7 +282,7 @@ token & parser::find (string const &name) {
 
 /* --------------------------------------------------------------------*/
 
-std::string soundex(const std::string & input, const int n)
+std::string soundex(const std::string & input, const unsigned int n)
 {
   static char lookup[] = {
     '0', /* A */ '1', '2', '3', '0', '1', '2', '0', '0', '2', '2', '4',
@@ -293,7 +293,7 @@ std::string soundex(const std::string & input, const int n)
   std::string result = input.substr(0, 1);
 
   // compute value for each character thereafter
-  for (int i = 1; i < input.length(); i++) {
+  for (unsigned int i = 1; i < input.length(); i++) {
     // skip non-alpha characters
     if (!isalpha(input[i])) {
       continue;
